@@ -1,0 +1,21 @@
+name: Wake Render & Trigger Inventory Sync
+
+on:
+  schedule:
+    - cron: '00 * * * *'  # 每小時 UTC 55 分 = 台灣時間 03 分
+
+jobs:
+  ping_and_sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🔔 Wake up Render app
+        run: |
+          curl -s https://sec-6pep.onrender.com > /dev/null
+          echo "✅ Render app pinged"
+
+      - name: 🚀 Trigger /sync with secure header
+        run: |
+          curl -X POST https://sec-6pep.onrender.com/sync \
+            -H "x-api-key: ${{ secrets.RUN_INVENTORY_SYNC_SECRET }}"
+          echo "✅ Inventory sync triggered"

@@ -2,7 +2,7 @@ import cron from 'node-cron';
 
 import syncInventoryByEcount from '../usecases/syncInventoryByEcount.js';
 
-// 每小時執行一次同步流程
+// 每小時執行一次同步流程 =>暫時沒有要用
 export default function scheduleInventorySync() {
     cron.schedule('0 * * * *', async () => {
         console.log(`🕒 ${new Date().toLocaleString('zh-TW')} 開始同步 Ecount → Shopify`);

@@ -1,9 +1,18 @@
+import dotenv from 'dotenv'; //處理.env 環境變數
+
 import express from 'express';
 import syncInventoryByEcount from '../usecases/syncInventoryByEcount.js';
 
+dotenv.config();
+
 const router = express.Router();
 // 手動觸發路由（GET /sync）
-router.get('/sync', async (_, res) => {
+router.post('/sync', async (_, res) => {
+  const secret = req.headers['x-api-key'];
+  if (secret !== process.env.RUN_INVENTORY_SYNC_SECRET) {
+    return res.status(403).json({ ok: false, message: 'Forbidden' });
+  }
+
   try {
     const result = await syncInventoryByEcount();
     res.json({
