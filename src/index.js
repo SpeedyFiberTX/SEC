@@ -10,8 +10,8 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(inventorySyncRoute);
 app.use(shopifyWebhookRoute);
+app.use(inventorySyncRoute);
 
 app.listen(PORT, () =>
   console.log(`🚀 Server on http://localhost:${PORT}`)
