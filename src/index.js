@@ -10,7 +10,15 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.use(
+  '/webhook/orders/create',
+  express.raw({ type: 'application/json', limit: '2mb' })
+);
+
 app.use(shopifyWebhookRoute);
+
+app.use(express.json());
+
 app.use(inventorySyncRoute);
 
 app.listen(PORT, () =>
