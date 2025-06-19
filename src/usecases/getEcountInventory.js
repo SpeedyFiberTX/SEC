@@ -5,7 +5,7 @@ import fetchInventory from '../services/ecount/fetchInventory.js';
 export default async function getEcountInventory(){
     try{
         const SESSION_ID = await login();
-        if (!SESSION_ID) throw new Error('SESSION_ID 為空，無法取得庫存');
+        if (!SESSION_ID) throw new Error('SESSION_ID 為空');
         return fetchInventory(SESSION_ID);
     }catch(error){
         console.log(`執行失敗`)
