@@ -1,16 +1,28 @@
 import runGetVariantsID from "../services/shopify/getVariantsID.js";
 import getEcountInventory from "./getEcountInventory.js";
 import runSetInventory from "../services/shopify/setInventory.js";
+import runGetItems from "./runGetItems.js";
 // 整合Ecount資料並同步到Shopify流程
 export default async function syncInventoryByEcount() {
     try {
-        const ecountInventory = await getEcountInventory();
+        const ecountInventory = await getEcountInventory(); //取得產品庫存數量
+        const ecountProductList = await runGetItems(); //取得產品SKU
+
+        // 合併資料
+        const merged = ecountInventory.map(item => {
+            const product = ecountProductList.find(p => p.PROD_CD === item.PROD_CD);
+            return {
+                PROD_CD: item.PROD_CD,
+                SIZE_DES: product?.SIZE_DES ?? null,
+                BAL_QTY: item.BAL_QTY
+            };
+        });
 
         const setQuantities = [];
 
-        for (const item of ecountInventory) {
+        for (const item of merged) {
             try {
-                const variantsInput = await runGetVariantsID(item.PROD_CD);
+                const variantsInput = await runGetVariantsID(item.SIZE_DES);
                 if (variantsInput) {
                     setQuantities.push({ ...variantsInput, quantity: Number(item.BAL_QTY) });
                 }
