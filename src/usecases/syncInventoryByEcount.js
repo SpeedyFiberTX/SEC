@@ -22,13 +22,19 @@ export default async function syncInventoryByEcount() {
 
         for (const item of merged) {
             try {
+                const quantity = Number(item.BAL_QTY);
+                if (quantity < 0) {
+                    console.warn(`❌ 跳過負庫存項目：${item.PROD_CD}（${item.SIZE_DES}），庫存為 ${quantity}`);
+                    continue;
+                }
+
                 const variantsInput = await runGetVariantsID(item.SIZE_DES);
                 if (variantsInput) {
-                    setQuantities.push({ ...variantsInput, quantity: Number(item.BAL_QTY) });
+                    setQuantities.push({ ...variantsInput, quantity });
                 }
 
             } catch (error) {
-                console.log(`查詢Variant失敗`)
+                console.log(`查詢Variant失敗`);
             }
         }
 
@@ -72,3 +78,5 @@ export default async function syncInventoryByEcount() {
         };
     }
 }
+
+syncInventoryByEcount() 
