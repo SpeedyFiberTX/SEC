@@ -15,7 +15,7 @@ export default async function fetchInventory(SESSION_ID) {
     const inputValue = { "PROD_CD": "", "WH_CD": "", "BASE_DATE": today }
 
     try {
-        const response = await axios.post(`https://sboapi${ZONE}.ecount.com/OAPI/V2/InventoryBalance/GetListInventoryBalanceStatus?SESSION_ID=${SESSION_ID}`, inputValue, headers);
+        const response = await axios.post(`https://oapi${ZONE}.ecount.com/OAPI/V2/InventoryBalance/GetListInventoryBalanceStatus?SESSION_ID=${SESSION_ID}`, inputValue, headers);
 
         console.log('庫存取得成功');
         const productInventoryList = response.data?.Data?.Result;

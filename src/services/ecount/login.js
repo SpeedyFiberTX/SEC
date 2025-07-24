@@ -16,7 +16,7 @@ const headers = {
 export default async function login() {
 
     try {
-        const response = await axios.post(`https://sboapi${ZONE}.ecount.com/OAPI/V2/OAPILogin`, {
+        const response = await axios.post(`	https://oapi${ZONE}.ecount.com/OAPI/V2/OAPILogin`, {
             "COM_CODE": COM_CODE,
             "USER_ID": USER_ID,
             "API_CERT_KEY": API_CERT_KEY,
@@ -24,9 +24,10 @@ export default async function login() {
             "ZONE": ZONE
         }, headers);
 
-        console.log('登入成功');
+
         const sessionId = response.data?.Data?.Datas?.SESSION_ID;
         if (!sessionId) throw new Error('SESSION_ID 取得失敗');
+        console.log('登入成功');
         return sessionId;
 
     } catch (error) {
