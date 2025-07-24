@@ -11,7 +11,7 @@ const headers = {
 
 export default async function saveSales(SESSION_ID,inputValue) {
     try {
-        const response = await axios.post(`https://sboapi${ZONE}.ecount.com/OAPI/V2/Sale/SaveSale?SESSION_ID=${SESSION_ID}`,inputValue,headers);
+        const response = await axios.post(`https://oapi${ZONE}.ecount.com/OAPI/V2/Sale/SaveSale?SESSION_ID=${SESSION_ID}`,inputValue,headers);
 
         console.log('銷貨單建立成功');
         console.log(response.data.Data);

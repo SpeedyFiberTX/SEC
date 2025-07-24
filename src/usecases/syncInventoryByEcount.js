@@ -78,5 +78,3 @@ export default async function syncInventoryByEcount() {
         };
     }
 }
-
-syncInventoryByEcount() 

@@ -12,7 +12,7 @@ const headers = {
 
 export default async function getItems(SESSION_ID) {
     try {
-        const response = await axios.post(`https://oapi${ZONE}.ecount.com/OAPI/V2/InventoryBasic/GetBasicProductsList?SESSION_ID=${SESSION_ID}}`,headers);
+        const response = await axios.post(`https://oapi${ZONE}.ecount.com/OAPI/V2/InventoryBasic/GetBasicProductsList?SESSION_ID=${SESSION_ID}`,headers);
 
         console.log('資料取得成功');
         const productList = response.data.Data.Result;
