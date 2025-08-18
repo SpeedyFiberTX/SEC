@@ -10,5 +10,6 @@ export default async function runGetItems(){
     }catch(error){
         console.log(`執行失敗`)
         console.error(error.message)
+        throw new Error('Ecount 產品資料 API 錯誤：' + error.message);
     }
 }

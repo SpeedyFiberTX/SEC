@@ -9,12 +9,21 @@ export default async function syncInventoryByEcount() {
         const ecountProductList = await runGetItems(); //取得產品SKU
 
         // 合併資料
-        const merged = ecountInventory.map(item => {
-            const product = ecountProductList.find(p => p.PROD_CD === item.PROD_CD);
+        // const merged = ecountInventory.map(item => {
+        //     const product = ecountProductList.find(p => p.PROD_CD === item.PROD_CD);
+        //     return {
+        //         PROD_CD: item.PROD_CD,
+        //         SIZE_DES: product?.SIZE_DES ?? null,
+        //         BAL_QTY: item.BAL_QTY
+        //     };
+        // });
+
+        const merged = ecountProductList.map(p => {
+            const inv = ecountInventory.find(item => item.PROD_CD === p.PROD_CD);
             return {
-                PROD_CD: item.PROD_CD,
-                SIZE_DES: product?.SIZE_DES ?? null,
-                BAL_QTY: item.BAL_QTY
+                PROD_CD: p.PROD_CD,
+                SIZE_DES: p.SIZE_DES ?? null,
+                BAL_QTY: inv ? Number(inv.BAL_QTY) : 0, // 缺值就給 0
             };
         });
 
@@ -24,8 +33,8 @@ export default async function syncInventoryByEcount() {
             try {
                 const quantity = Number(item.BAL_QTY);
                 if (quantity < 0) {
-                    console.warn(`❌ 跳過負庫存項目：${item.PROD_CD}（${item.SIZE_DES}），庫存為 ${quantity}`);
-                    continue;
+                    console.warn(`⚠️ 負庫存歸零：${item.PROD_CD}（${item.SIZE_DES}），原始庫存 ${quantity}`);
+                    quantity = 0;
                 }
 
                 const variantsInput = await runGetVariantsID(item.SIZE_DES);
