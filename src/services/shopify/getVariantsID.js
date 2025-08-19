@@ -48,15 +48,15 @@ export default async function runGetVariantsID(sku) {
     const Variants = response.productVariants.nodes;
     if (Variants.length > 0) {
       const variantsInput = Variants.map(item => ({ inventoryItemId: item.inventoryItem.id, locationId: LOCATION_Id }));
-      console.log(`查詢Variant成功 SKU：${sku}`)
+      console.log(`Shopify 查詢 Variant成功 SKU：${sku}`)
       console.log(variantsInput[0]);
       return variantsInput[0];
     } else {
-      console.log(`無此Variant SKU：${sku}`)
+      console.log(`Shopify 無此 Variant SKU：${sku}`)
       return null;
     }
   } catch (error) {
-    console.log(`查詢Variant失敗`)
+    console.log(`Shopify 查詢 Variant 失敗`)
     console.error(error.message)
   }
 }

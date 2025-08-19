@@ -1,7 +1,9 @@
 // import createSaleByShopify from "./createSaleByShopify";
+import addNotionPageToDatabase from "../services/notion/add-page-to-database.js"
 
 export default async function handleShopifyOrder(order) {
   try {
+    console.log(order);
     console.log('🛒 處理新訂單：', order.name || order.id);
 
     // 🔍 基本資訊
@@ -17,7 +19,7 @@ export default async function handleShopifyOrder(order) {
     const month = String(createdAt.getMonth() + 1).padStart(2, '0'); // 月份從 0 開始
     const day = String(createdAt.getDate()).padStart(2, '0');
 
-    const orderDateStr = `${year}${month}${day}`; // → "20250619"
+    const orderDateStr = `${year}-${month}-${day}`; // → "20250619"
     console.log(`訂單日期：${orderDateStr}`);
 
     console.log(`👤 顧客：${customerName}`);
@@ -25,100 +27,57 @@ export default async function handleShopifyOrder(order) {
     console.log('📦 商品明細：');
     console.table(items);
 
-    // 📤 上傳到 Ecount 的邏輯
-    const inputValue = {
-      "SaleList": [{
-        "BulkDatas": {
-          "IO_DATE": orderDateStr,
-          "UPLOAD_SER_NO": order.name || order.id,
-          "CUST": "",
-          "CUST_DES": "",
-          "EMP_CD": "",
-          "WH_CD": "00009",
-          "IO_TYPE": "",
-          "EXCHANGE_TYPE": "",
-          "EXCHANGE_RATE": "",
-          "SITE": "",
-          "PJT_CD": "",
-          "DOC_NO": "",
-          "TTL_CTT": "",
-          "U_MEMO1": orderDateStr,
-          "U_MEMO2": "",
-          "U_MEMO3": "",
-          "U_MEMO4": "",
-          "U_MEMO5": "",
-          "ADD_TXT_01_T": "",
-          "ADD_TXT_02_T": "",
-          "ADD_TXT_03_T": "",
-          "ADD_TXT_04_T": "",
-          "ADD_TXT_05_T": "",
-          "ADD_TXT_06_T": "",
-          "ADD_TXT_07_T": "",
-          "ADD_TXT_08_T": "",
-          "ADD_TXT_09_T": "",
-          "ADD_TXT_10_T": "",
-          "ADD_NUM_01_T": "",
-          "ADD_NUM_02_T": "",
-          "ADD_NUM_03_T": "",
-          "ADD_NUM_04_T": "",
-          "ADD_NUM_05_T": "",
-          "ADD_CD_01_T": "",
-          "ADD_CD_02_T": "",
-          "ADD_CD_03_T": "",
-          "ADD_DATE_01_T": "",
-          "ADD_DATE_02_T": "",
-          "ADD_DATE_03_T": "",
-          "U_TXT1": "",
-          "ADD_LTXT_01_T": "",
-          "ADD_LTXT_02_T": "",
-          "ADD_LTXT_03_T": "",
-          "PROD_CD": "M1DXRBLCULCU2OZH10M",
-          "PROD_DES": "test",
-          "SIZE_DES": "",
-          "UQTY": "",
-          "QTY": "1",
-          "PRICE": "",
-          "USER_PRICE_VAT": "",
-          "SUPPLY_AMT": "",
-          "SUPPLY_AMT_F": "",
-          "VAT_AMT": "",
-          "REMARKS": "",
-          "ITEM_CD": "",
-          "P_REMARKS1": "",
-          "P_REMARKS2": "",
-          "P_REMARKS3": "",
-          "ADD_TXT_01": "",
-          "ADD_TXT_02": "",
-          "ADD_TXT_03": "",
-          "ADD_TXT_04": "",
-          "ADD_TXT_05": "",
-          "ADD_TXT_06": "",
-          "REL_DATE": orderDateStr,
-          "REL_NO": "",
-          "MAKE_FLAG": "",
-          "CUST_AMT": "",
-          "P_AMT1": "",
-          "P_AMT2": "",
-          "ADD_NUM_01": "",
-          "ADD_NUM_02": "",
-          "ADD_NUM_03": "",
-          "ADD_CD_01": "",
-          "ADD_CD_02": "",
-          "ADD_CD_03": "",
-          "ADD_CD_NM_01": "",
-          "ADD_CD_NM_02": "",
-          "ADD_CD_NM_03": "",
-          "ADD_CDNM_01": "",
-          "ADD_CDNM_02": "",
-          "ADD_CDNM_03": "",
-          "ADD_DATE_01": "",
-          "ADD_DATE_02": "",
-          "ADD_DATE_03": ""
-        }
-      }]
-    }
+    // // 📤 上傳到 Ecount 的邏輯
+    // 整理資料
+    // await createSaleByShopify(inputValue);
 
-    await createSaleByShopify(inputValue);
+    // 📤 匯入 notion 的邏輯
+    // 整理資料並output為propertiesForNewPages(陣列)
+
+    const propertiesForNewPages = [
+      {
+        "訂單編號": {
+          type: "title",
+          title: [{ type: "text", text: { content: "#1025" } }],
+        },
+        "平台": {
+          type: "select",
+          select: { name: "Shopify" },
+        },
+        "客戶名稱": {
+          type: "rich_text",
+          rich_text: [{ type: "text", text: { content: customerName } }],
+        },
+        "Email": {
+          type: "email",
+          email: "customer@example.com",
+        },
+        "聯絡電話": {
+          type: "phone_number",
+          phone_number: "+886-912-345-678",
+        },
+        "訂單金額": {
+          type: "number",
+          number: total,
+        },
+        "配送地址": {
+          type: "rich_text",
+          rich_text: [
+            { type: "text", text: { content: "台北市中山區南京東路一段 100 號 10 樓" } },
+          ],
+        },
+        "訂單日期": {
+          type: "date",
+          date: { start: orderDateStr },
+        },
+      },
+    ];
+
+    console.log("Adding new pages...")
+    for (let i = 0; i < propertiesForNewPages.length; i++) {
+      // Add a few new pages to the database that was just created
+      await addNotionPageToDatabase(propertiesForNewPages[i])
+    }
 
   } catch (err) {
     console.error('❌ 訂單處理錯誤：', err.message);

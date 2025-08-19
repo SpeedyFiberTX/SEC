@@ -1,7 +1,7 @@
 import dotenv from 'dotenv'; //處理.env 環境變數
 
 import express from 'express';
-import syncInventoryByEcount from '../usecases/syncInventoryByEcount.js';
+import syncInventoryByEcount from '../workflow/syncInventoryByEcount.js';
 
 dotenv.config();
 
