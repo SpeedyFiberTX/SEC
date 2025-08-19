@@ -67,7 +67,7 @@ function extractOrderFields(order) {
       " / "
     );
 
-    const main = `${item?.title || "(未命名商品)"} × ${qty} @ ${currency(unitPrice, currencyCode)} = ${currency(subtotal, currencyCode)}`;
+    const main = `• ${item?.title || "(未命名商品)"} × ${qty} @ ${currency(unitPrice, currencyCode)} = ${currency(subtotal, currencyCode)}`;
     return variantText ? `${main} 〔${variantText}〕` : main;
   });
 
