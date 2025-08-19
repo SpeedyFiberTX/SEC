@@ -15,5 +15,5 @@ export default async function addNotionPageToDatabase(pageProperties) {
     },
     properties: pageProperties,
   })
-  // console.log(newPage)
+  return newPage
 }

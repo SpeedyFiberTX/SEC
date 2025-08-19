@@ -148,11 +148,11 @@ export default async function handleShopifyOrder(order) {
     const propertiesForNewPages = [buildNotionProperties(ex)];
 
     // 4) 寫入 Notion
-    console.log("開始新增 notion 資料...");
+    console.log("📝 開始新增 notion 資料...");
     for (let i = 0; i < propertiesForNewPages.length; i++) {
       const res = await addNotionPageToDatabase(propertiesForNewPages[i]);
       if (res){
-        console.log('已建立 notion 資料')
+        console.log('✅ 已建立 notion 資料')
       }
     }
 
