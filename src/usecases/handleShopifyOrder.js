@@ -148,9 +148,12 @@ export default async function handleShopifyOrder(order) {
     const propertiesForNewPages = [buildNotionProperties(ex)];
 
     // 4) 寫入 Notion
-    console.log("Adding new pages...");
+    console.log("開始新增 notion 資料...");
     for (let i = 0; i < propertiesForNewPages.length; i++) {
-      await addNotionPageToDatabase(propertiesForNewPages[i]);
+      const res = await addNotionPageToDatabase(propertiesForNewPages[i]);
+      if (res){
+        console.log('已建立 notion 資料')
+      }
     }
 
     // 5)（選用）同步 Ecount 的流程可在這裡呼叫
