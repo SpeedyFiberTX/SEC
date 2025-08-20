@@ -1,5 +1,5 @@
-import login from "../services/ecount/login";
-import saveSales from "../services/ecount/saveSales";
+import login from "../services/ecount/login.js";
+import saveSales from "../services/ecount/saveSales.js";
 
 export default async function createEcountSale(inputValue) {
     try {
