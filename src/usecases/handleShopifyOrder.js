@@ -355,7 +355,9 @@ export default async function handleShopifyOrder(order) {
       }
     }
 
-    // 5)（選用）同步 Ecount 的流程可在這裡呼叫
+    // 5) 組 Notion Properties
+    const inputValue = buildEcountProperties(ex);
+    // 6)（選用）同步 Ecount 的流程可在這裡呼叫
     await createEcountSale(inputValue);
 
   } catch (err) {
