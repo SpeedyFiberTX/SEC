@@ -109,11 +109,11 @@ function buildNotionProperties(ex) {
       type: "title",
       title: [{ type: "text", text: { content: ex.title } }],
     },
-    "平台": {
+    "出貨倉庫": {
       type: "select",
       select: { name: ex.singleWarehouseId === 81795907814 ? "台灣" : "深圳" , }, // 必須與資料庫選項同名
     },
-    "出貨倉庫": {
+    "平台": {
       type: "select",
       select: { name: ex.platform }, // 必須與資料庫選項同名
     },
