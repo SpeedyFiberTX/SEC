@@ -1,4 +1,4 @@
-// import createSaleByShopify from "./createSaleByShopify";
+import createEcountSale from "../usecases/createEcountSale.js";
 import addNotionPageToDatabase from "../services/notion/add-page-to-database.js";
 
 /* ----------------------------- 共用工具 ----------------------------- */
@@ -8,7 +8,7 @@ function formatDateYYYYMMDD(iso) {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
+  return [`${y}-${m}-${day}`,`${y}${m}${day}`];
 }
 
 function compactJoin(parts, sep = ", ") {
@@ -26,9 +26,17 @@ function currency(num, ccy = "USD") {
 
 /* ------------------------ Shopify 欄位集中處理 ------------------------ */
 function extractOrderFields(order) {
-  const title = order?.name || (order?.number ? `#${order.number}` : String(order?.id || ""));
-  const createdDate = formatDateYYYYMMDD(order?.created_at);
+  const id = order?.id || "";
+  const number = order?.number || null; // Shopify 訂單 ID
+  const title = order?.name || (number ? `#${number}` : String(id));
+  const [createdDate, createdDate8] = formatDateYYYYMMDD(order?.created_at);
   const currencyCode = order?.currency || "USD";
+
+  // 嘗試從 fulfillments 取倉庫（已指派/已出貨才會有）
+  const fulfillments = Array.isArray(order?.fulfillments) ? order.fulfillments : [];
+  const locIds = [...new Set(fulfillments.map(f => f?.location_id).filter(Boolean))];
+  const warehouseIds = locIds;                              // 可能有多倉
+  const singleWarehouseId = warehouseIds.length === 1 ? warehouseIds[0] : null;
 
   const customerName =
     compactJoin([order?.customer?.first_name, order?.customer?.last_name], " ") ||
@@ -72,6 +80,8 @@ function extractOrderFields(order) {
   });
 
   return {
+    id,
+    number,
     title,
     platform: "Shopify", // 需要與 Notion 資料庫 select 選項一致；可改用 order.source_name
     customerName,
@@ -80,8 +90,12 @@ function extractOrderFields(order) {
     total,
     shippingAddress,
     createdDate,
+    createdDate8,
     currencyCode,
     items,
+    // 倉庫資訊（只依 fulfillments，可為多倉）
+    warehouseIds,        // 例如 [123456789, 987654321]
+    singleWarehouseId,   // 單倉就給數字，否則為 null
   };
 }
 
@@ -131,6 +145,191 @@ function buildNotionProperties(ex) {
   };
 }
 
+/* ------------------------ 組 Ecount Properties ------------------------ */
+function buildEcountProperties(ex) {
+
+  return {
+      "SaleList": [
+        {
+        "BulkDatas": {
+          "IO_DATE": ex.createdDate8,
+          "UPLOAD_SER_NO": String(ex.number ?? ex.id),
+          "CUST": "10015",
+          "CUST_DES": "Shopify",
+          "EMP_CD": "",
+          "WH_CD":ex.singleWarehouseId=== 81795907814 ? "100" : "200" , //如果是深圳倉庫 200 台灣倉庫 100
+          "IO_TYPE": "",
+          "EXCHANGE_TYPE": "",
+          "EXCHANGE_RATE": "",
+          "SITE": "",
+          "PJT_CD": "",
+          "DOC_NO": "",
+          "TTL_CTT": "",
+          "U_MEMO1": "",
+          "U_MEMO2": ex.title,
+          "U_MEMO3": "",
+          "U_MEMO4": "",
+          "U_MEMO5": "",
+          "ADD_TXT_01_T": "",
+          "ADD_TXT_02_T": "",
+          "ADD_TXT_03_T": "",
+          "ADD_TXT_04_T": "",
+          "ADD_TXT_05_T": "",
+          "ADD_TXT_06_T": "",
+          "ADD_TXT_07_T": "",
+          "ADD_TXT_08_T": "",
+          "ADD_TXT_09_T": "",
+          "ADD_TXT_10_T": "",
+          "ADD_NUM_01_T": "",
+          "ADD_NUM_02_T": "",
+          "ADD_NUM_03_T": "",
+          "ADD_NUM_04_T": "",
+          "ADD_NUM_05_T": "",
+          "ADD_CD_01_T": "",
+          "ADD_CD_02_T": "",
+          "ADD_CD_03_T": "",
+          "ADD_DATE_01_T": "",
+          "ADD_DATE_02_T": "",
+          "ADD_DATE_03_T": "",
+          "U_TXT1": "",
+          "ADD_LTXT_01_T": "",
+          "ADD_LTXT_02_T": "",
+          "ADD_LTXT_03_T": "",
+          "PROD_CD": "M1DX5001RZH-010M", //要先以SKU查詢品項編碼，多產品要發兩次，序號一致就會綁定在一起(推測)
+          "PROD_DES": "",
+          "SIZE_DES": "",
+          "UQTY": "",
+          "QTY": "1",
+          "PRICE": "",
+          "USER_PRICE_VAT": "",
+          "SUPPLY_AMT": "",
+          "SUPPLY_AMT_F": "",
+          "VAT_AMT": "",
+          "REMARKS": "",
+          "ITEM_CD": "",
+          "P_REMARKS1": "",
+          "P_REMARKS2": "",
+          "P_REMARKS3": "",
+          "ADD_TXT_01": "",
+          "ADD_TXT_02": "",
+          "ADD_TXT_03": "",
+          "ADD_TXT_04": "",
+          "ADD_TXT_05": "",
+          "ADD_TXT_06": "",
+          "REL_DATE": ex.createdDate8,
+          "REL_NO": "",
+          "MAKE_FLAG": "",
+          "CUST_AMT": "",
+          "P_AMT1": "",
+          "P_AMT2": "",
+          "ADD_NUM_01": "",
+          "ADD_NUM_02": "",
+          "ADD_NUM_03": "",
+          "ADD_CD_01": "",
+          "ADD_CD_02": "",
+          "ADD_CD_03": "",
+          "ADD_CD_NM_01": "",
+          "ADD_CD_NM_02": "",
+          "ADD_CD_NM_03": "",
+          "ADD_CDNM_01": "",
+          "ADD_CDNM_02": "",
+          "ADD_CDNM_03": "",
+          "ADD_DATE_01": "",
+          "ADD_DATE_02": "",
+          "ADD_DATE_03": ""
+        }
+      },{
+        "BulkDatas": {
+          "IO_DATE": ex.createdDate8,
+          "UPLOAD_SER_NO": String(ex.number ?? ex.id),
+          "CUST": "10015",
+          "CUST_DES": "Shopify",
+          "EMP_CD": "",
+          "WH_CD":ex.singleWarehouseId=== 81795907814 ? "100" : "200" , //如果是深圳倉庫 200 台灣倉庫 100
+          "IO_TYPE": "",
+          "EXCHANGE_TYPE": "",
+          "EXCHANGE_RATE": "",
+          "SITE": "",
+          "PJT_CD": "",
+          "DOC_NO": "",
+          "TTL_CTT": "",
+          "U_MEMO1": "",
+          "U_MEMO2": ex.title,
+          "U_MEMO3": "",
+          "U_MEMO4": "",
+          "U_MEMO5": "",
+          "ADD_TXT_01_T": "",
+          "ADD_TXT_02_T": "",
+          "ADD_TXT_03_T": "",
+          "ADD_TXT_04_T": "",
+          "ADD_TXT_05_T": "",
+          "ADD_TXT_06_T": "",
+          "ADD_TXT_07_T": "",
+          "ADD_TXT_08_T": "",
+          "ADD_TXT_09_T": "",
+          "ADD_TXT_10_T": "",
+          "ADD_NUM_01_T": "",
+          "ADD_NUM_02_T": "",
+          "ADD_NUM_03_T": "",
+          "ADD_NUM_04_T": "",
+          "ADD_NUM_05_T": "",
+          "ADD_CD_01_T": "",
+          "ADD_CD_02_T": "",
+          "ADD_CD_03_T": "",
+          "ADD_DATE_01_T": "",
+          "ADD_DATE_02_T": "",
+          "ADD_DATE_03_T": "",
+          "U_TXT1": "",
+          "ADD_LTXT_01_T": "",
+          "ADD_LTXT_02_T": "",
+          "ADD_LTXT_03_T": "",
+          "PROD_CD": "M1DX5003RZH-050CM", //要先以SKU查詢品項編碼，多產品要發兩次，序號一致就會綁定在一起(推測)
+          "PROD_DES": "",
+          "SIZE_DES": "",
+          "UQTY": "",
+          "QTY": "1",
+          "PRICE": "",
+          "USER_PRICE_VAT": "",
+          "SUPPLY_AMT": "",
+          "SUPPLY_AMT_F": "",
+          "VAT_AMT": "",
+          "REMARKS": "",
+          "ITEM_CD": "",
+          "P_REMARKS1": "",
+          "P_REMARKS2": "",
+          "P_REMARKS3": "",
+          "ADD_TXT_01": "",
+          "ADD_TXT_02": "",
+          "ADD_TXT_03": "",
+          "ADD_TXT_04": "",
+          "ADD_TXT_05": "",
+          "ADD_TXT_06": "",
+          "REL_DATE": ex.createdDate8,
+          "REL_NO": "",
+          "MAKE_FLAG": "",
+          "CUST_AMT": "",
+          "P_AMT1": "",
+          "P_AMT2": "",
+          "ADD_NUM_01": "",
+          "ADD_NUM_02": "",
+          "ADD_NUM_03": "",
+          "ADD_CD_01": "",
+          "ADD_CD_02": "",
+          "ADD_CD_03": "",
+          "ADD_CD_NM_01": "",
+          "ADD_CD_NM_02": "",
+          "ADD_CD_NM_03": "",
+          "ADD_CDNM_01": "",
+          "ADD_CDNM_02": "",
+          "ADD_CDNM_03": "",
+          "ADD_DATE_01": "",
+          "ADD_DATE_02": "",
+          "ADD_DATE_03": ""
+        }
+      }]
+    }
+}
+
 /* ------------------------------- 主流程 ------------------------------- */
 export default async function handleShopifyOrder(order) {
   try {
@@ -157,7 +356,7 @@ export default async function handleShopifyOrder(order) {
     }
 
     // 5)（選用）同步 Ecount 的流程可在這裡呼叫
-    // await createSaleByShopify(inputValue);
+    await createEcountSale(inputValue);
 
   } catch (err) {
     console.error("❌ 訂單處理錯誤：", err?.message || err);
