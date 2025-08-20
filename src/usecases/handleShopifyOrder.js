@@ -182,7 +182,8 @@ async function buildEcountProperties(ex) {
     ex.items.forEach(item => {
 
       // 以SKU查詢品項編碼
-      const PROD_CD = EcountProductList.find(product => product.SIZE_DES === item.sku).PROD_CD;
+      const productDetail = EcountProductList.find(product => product.SIZE_DES === item.sku);
+      console.log(productDetail);
 
       saleList["SaleList"].push({
         "BulkDatas": {
@@ -229,7 +230,7 @@ async function buildEcountProperties(ex) {
           "ADD_LTXT_01_T": "",
           "ADD_LTXT_02_T": "",
           "ADD_LTXT_03_T": "",
-          "PROD_CD": PROD_CD, //要先以SKU查詢品項編碼，多產品要發兩次，序號一致就會綁定在一起(推測)
+          "PROD_CD": productDetail.PROD_CD, //要先以SKU查詢品項編碼，多產品要發兩次，序號一致就會綁定在一起(推測)
           "PROD_DES": "",
           "SIZE_DES": "",
           "UQTY": "",
@@ -310,7 +311,7 @@ export default async function handleShopifyOrder(order) {
     }
 
     // 5) 組 Ecount Properties
-    const inputValue = buildEcountProperties(ex);
+    const inputValue = await buildEcountProperties(ex);
     // 6)（選用）同步 Ecount 的流程可在這裡呼叫
     await createEcountSale(inputValue);
 
