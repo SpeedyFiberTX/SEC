@@ -174,7 +174,7 @@ function buildEcountProperties(ex) {
           "U_MEMO3": "",
           "U_MEMO4": "",
           "U_MEMO5": "",
-          "ADD_TXT_01_T": "",
+          "ADD_TXT_01_T": ex.shippingAddress,
           "ADD_TXT_02_T": "",
           "ADD_TXT_03_T": "",
           "ADD_TXT_04_T": "",
