@@ -111,6 +111,10 @@ function buildNotionProperties(ex) {
     },
     "平台": {
       type: "select",
+      select: { name: ex.singleWarehouseId === 81795907814 ? "台灣" : "深圳" , }, // 必須與資料庫選項同名
+    },
+    "出貨倉庫": {
+      type: "select",
       select: { name: ex.platform }, // 必須與資料庫選項同名
     },
     "客戶名稱": {
@@ -156,7 +160,7 @@ function buildEcountProperties(ex) {
           "UPLOAD_SER_NO": String(ex.number ?? ex.id),
           "CUST": "10015",
           "CUST_DES": "Shopify",
-          "EMP_CD": "",
+          "EMP_CD": "10007",
           "WH_CD":ex.singleWarehouseId=== 81795907814 ? "100" : "200" , //如果是深圳倉庫 200 台灣倉庫 100
           "IO_TYPE": "",
           "EXCHANGE_TYPE": "",
@@ -165,7 +169,7 @@ function buildEcountProperties(ex) {
           "PJT_CD": "",
           "DOC_NO": "",
           "TTL_CTT": "",
-          "U_MEMO1": "",
+          "U_MEMO1": ex.createdDate8,
           "U_MEMO2": ex.title,
           "U_MEMO3": "",
           "U_MEMO4": "",
