@@ -207,7 +207,7 @@ async function buildEcountProperties(ex) {
         "AGREE_TERM": "",
         "TIME_DATE": "",
         "REMARKS_WIN": "",
-        "U_MEMO1": "",
+        "U_MEMO1": ex.title,
         "U_MEMO2": ex.customerName,
         "U_MEMO3": "",
         "U_MEMO4": "",
