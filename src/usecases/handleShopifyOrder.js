@@ -176,7 +176,9 @@ async function buildEcountProperties(ex) {
     const EcountProductList = await getEcountItems();
 
     // 要return的資料
-    const saleList = {}
+    const saleList = {
+      "SaleList":[]
+    }
 
 
     ex.items.forEach(item => {
@@ -230,11 +232,11 @@ async function buildEcountProperties(ex) {
           "ADD_LTXT_01_T": "",
           "ADD_LTXT_02_T": "",
           "ADD_LTXT_03_T": "",
-          "PROD_CD": productDetail.PROD_CD, //要先以SKU查詢品項編碼，多產品要發兩次，序號一致就會綁定在一起(推測)
+          "PROD_CD": "M1DX5001RZH-010M", //要先以SKU查詢品項編碼，多產品要發兩次，序號一致就會綁定在一起(推測)
           "PROD_DES": "",
           "SIZE_DES": "",
           "UQTY": "",
-          "QTY": "1",
+          "QTY": item.quantity,
           "PRICE": ex.singleWarehouseId === 81795907814 ? "" : item.price, //單價(美國訂單)
           "USER_PRICE_VAT": ex.singleWarehouseId === 81795907814 ? item.price : "", //單價含稅(台灣訂單)
           "SUPPLY_AMT": "",
