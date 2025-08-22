@@ -196,7 +196,7 @@ async function buildEcountProperties(ex) {
           "EMP_CD": "10007",
           "WH_CD": ex.singleWarehouseId === 81795907814 ? "100" : "200", //如果是深圳倉庫 200 台灣倉庫 100
           "IO_TYPE": "",
-          "EXCHANGE_TYPE": "",
+          "EXCHANGE_TYPE": "00002",
           "EXCHANGE_RATE": "",
           "SITE": "",
           "PJT_CD": "",
