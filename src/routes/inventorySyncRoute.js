@@ -27,4 +27,16 @@ router.post('/sync', async (req, res) => {
 });
 
 
+// 🕒 每小時自動執行一次 (台灣時間 03 分)
+cron.schedule('3 * * * *', async () => {
+  const ts = new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' });
+  console.log(`🕒 ${ts} 自動同步 Ecount → Shopify`);
+  try {
+    const result = await syncInventoryByEcount();
+    console.log(`✅ 同步完成：${result.successCount} / ${result.totalCount}`);
+  } catch (err) {
+    console.error('❌ 自動同步失敗', err.message);
+  }
+}, { timezone: 'Asia/Taipei' });
+
 export default router;
