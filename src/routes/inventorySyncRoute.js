@@ -1,5 +1,5 @@
 import dotenv from 'dotenv'; //處理.env 環境變數
-
+import cron from 'node-cron';
 import express from 'express';
 import syncInventoryByEcount from '../workflow/syncInventoryByEcount.js';
 
