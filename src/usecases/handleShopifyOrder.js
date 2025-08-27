@@ -1,6 +1,7 @@
 // import createEcountSale from "../usecases/createEcountSale.js";
 import createEcountSaleOrder from "./createEcountSaleOrder.js";
 import addNotionPageToDatabase from "../services/notion/add-page-to-database.js";
+import addNotionPageToOrderDatabase from "../services/notion/add-page-to-order-database.js";
 import getEcountItems from "./getEcountItems.js";
 
 /* ----------------------------- 共用工具 ----------------------------- */
@@ -98,7 +99,7 @@ function extractOrderFields(order) {
 
 }
 
-/* ------------------------ 組 Notion Properties ------------------------ */
+/* ------------------------ 組 Notion Properties  (平台訂單彙整)------------------------ */
 function buildNotionProperties(ex) {
   const itemLines = Array.isArray(ex.items) && ex.items.length
     ? ex.items.map(i => {
@@ -162,6 +163,60 @@ function buildNotionProperties(ex) {
     "商品明細": {
       type: "rich_text",
       rich_text: [{ type: "text", text: { content: itemText } }],
+    },
+  };
+}
+
+/* ------------------------ 組 Notion Properties (訂單) ------------------------ */
+function buildNotionOrderProperties(ex) {
+  const itemLines = Array.isArray(ex.items) && ex.items.length
+    ? ex.items.map(i => {
+      const qty = Number(i?.quantity ?? 0);
+      const price = Number(i?.price ?? 0);
+      const subtotal = qty * price;
+
+      // 行內片段：標題(可選)、SKU(可選)、數量、單價、金額
+      const chunks = [
+        i?.title ? `${i.title}` : null,
+        i?.sku ? `〔SKU: ${i.sku}〕` : null,
+        `× ${qty}`,
+        `@ ${currency(price, ex.currencyCode)}`,
+        `= ${currency(subtotal, ex.currencyCode)}`
+      ].filter(Boolean);
+
+      return `• ${chunks.join(" ")}`;
+    })
+    : ["（無商品明細）"];
+
+  const itemText = itemLines.join("\n");
+  const skuList = ex.items.map(item=>item.sku);
+  const skuText = skuList.join("\n");
+
+  return {
+    "Name": {
+      type: "title",
+      title: [{ type: "text", text: { content: ex.customerName } }],
+    },
+    "平台": {
+      type: "select",
+      select: { name: "官網" }, // 必須與資料庫選項同名
+    },
+    "價格(稅內)": {
+      type: "number",
+      number: ex.total,
+    },
+    "Order Date": {
+      type: "date",
+      date: ex.createdDate ? { start: ex.createdDate } : null,
+    },
+    // 新增：商品明細（rich_text 多行）
+    "品項": {
+      type: "rich_text",
+      rich_text: [{ type: "text", text: { content: itemText } }],
+    },
+    "SKU": {
+      type: "rich_text",
+      rich_text: [{ type: "text", text: { content: skuText } }],
     },
   };
 }
@@ -407,11 +462,20 @@ export default async function handleShopifyOrder(order) {
 
     // 3) 組 Notion Properties
     const propertiesForNewPages = [buildNotionProperties(ex)];
+    const propertiesForOrderNewPages = [buildNotionOrderProperties(ex)];
 
     // 4) 寫入 Notion
-    console.log("📝 開始新增 notion 資料...");
+    console.log("📝 開始新增資料到平台訂單彙整...");
     for (let i = 0; i < propertiesForNewPages.length; i++) {
       const res = await addNotionPageToDatabase(propertiesForNewPages[i]);
+      if (res) {
+        console.log('✅ 已建立 notion 資料')
+      }
+    }
+
+        console.log("📝 開始新增資料到訂單...");
+    for (let i = 0; i < propertiesForNewPages.length; i++) {
+      const res = await addNotionPageToOrderDatabase(propertiesForNewPages[i]);
       if (res) {
         console.log('✅ 已建立 notion 資料')
       }
