@@ -474,8 +474,8 @@ export default async function handleShopifyOrder(order) {
     }
 
         console.log("📝 開始新增資料到訂單...");
-    for (let i = 0; i < propertiesForNewPages.length; i++) {
-      const res = await addNotionPageToOrderDatabase(propertiesForNewPages[i]);
+    for (let i = 0; i < propertiesForOrderNewPages.length; i++) {
+      const res = await addNotionPageToOrderDatabase(propertiesForOrderNewPages[i]);
       if (res) {
         console.log('✅ 已建立 notion 資料')
       }
