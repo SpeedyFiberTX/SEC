@@ -1,11 +1,7 @@
 import axios from "axios";
-import getAccessToken from "./login.js";
 
-async function getOrders() {
+export default async function getOrders(access_token) {
     try {
-
-
-        const access_token = await getAccessToken();
 
         if (access_token) {
             const endpoint = "https://sellingpartnerapi-na.amazon.com"; // 依地區改 NA/EU/FE sandbox https://sandbox.sellingpartnerapi-na.amazon.com
@@ -26,7 +22,8 @@ async function getOrders() {
 
             const res = await axios.get(url, { params, headers });
 
-            console.log(JSON.stringify(res.data));
+            // console.log(JSON.stringify(res.data));
+            return res.data.payload.Orders;
         }
 
 

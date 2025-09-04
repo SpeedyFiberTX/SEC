@@ -480,6 +480,6 @@ export default async function handleShopifyOrder(order) {
     await createEcountSaleOrder(inputValue);
 
   } catch (err) {
-    console.error("❌ 訂單處理錯誤：", err?.message || err);
+    console.error("❌ Shopify 訂單處理錯誤：", err?.message || err);
   }
 }
