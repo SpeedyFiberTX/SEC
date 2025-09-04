@@ -104,5 +104,3 @@ export default async function handleAmazonOrder() {
         console.error("❌ Amazon 訂單處理錯誤：", err?.message || err);
     }
 }
-
-handleAmazonOrder()
