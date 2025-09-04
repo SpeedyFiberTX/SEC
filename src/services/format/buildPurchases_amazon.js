@@ -1,0 +1,55 @@
+import formatDateYYYYMMDD from "./formatDateYYYYMMDD.js";
+
+export default function buildPurchases_amazon(newPurchasesProducts) {
+    const date = formatDateYYYYMMDD(new Date());
+
+    const PurchasesList = [];
+
+    for (const item of newPurchasesProducts) {
+        PurchasesList.push({
+            "BulkDatas": {
+                "ORD_DATE": "",
+                "ORD_NO": "",
+                "IO_DATE": date[1], //日期
+                "UPLOAD_SER_NO": date[1].slice(-4), //這邊要給個編號
+                "CUST": "10018", //Amazon 庫存同步
+                "CUST_DES": "",
+                "EMP_CD": "10019",//同步機器人
+                "WH_CD": "300", //FBA 倉庫
+                "IO_TYPE": "",
+                "EXCHANGE_TYPE": "",
+                "EXCHANGE_RATE": "",
+                "SITE": "",
+                "PJT_CD": "",
+                "DOC_NO": "",
+                "U_MEMO1": "",
+                "U_MEMO2": "",
+                "U_MEMO3": "",
+                "U_MEMO4": "",
+                "U_MEMO5": "",
+                "U_TXT1": "",
+                "TTL_CTT": "",
+                "PROD_CD": item.fnSku, //品項編碼
+                "PROD_DES": "",
+                "SIZE_DES": "",
+                "UQTY": "",
+                "QTY": item.deltaQty, //新增數量
+                "PRICE": "",
+                "USER_PRICE_VAT": "",
+                "SUPPLY_AMT": "",
+                "SUPPLY_AMT_F": "",
+                "VAT_AMT": "",
+                "REMARKS": "",
+                "ITEM_CD": "",
+                "P_AMT1": "",
+                "P_AMT2": "",
+                "P_REMARKS1": "",
+                "P_REMARKS2": "",
+                "P_REMARKS3": "",
+                "CUST_AMT": ""
+            }
+        });
+    }
+
+    return PurchasesList
+}

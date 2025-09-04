@@ -5,10 +5,10 @@ import SaveBasicProduct from "../services/ecount/SaveBasicProduct.js";
 // const inputValue = {			
 // 		"ProductList": [{			
 // 		"BulkDatas": {	
-// 			"PROD_CD": "AAATEST",
-// 			"PROD_DES": "Test Product",
+// 			"PROD_CD": "B08JG651J9", //asin
+// 			"PROD_DES": "SpeedyFiberTX 1-Pack 1 Foot Multimode 10G OM3 50/125 Fiber Optic Patch Cable, Duplex LC to LC, Aqua Riser OFNR Cable Jacket", //title
 // 			"SIZE_FLAG": "",
-// 			"SIZE_DES": "AAATEST",
+// 			"SIZE_DES": "1PK-001F", //sellerSku
 // 			"UNIT": "psc",
 // 			"PROD_TYPE": "",
 // 			"SET_FLAG": "",
@@ -207,4 +207,4 @@ export default async function createEcountBasicProduct(inputValue) {
     }
 }
 
-// createEcountBasicProduct(inputValue);
+// createEcountBasicProduct(inputValue)

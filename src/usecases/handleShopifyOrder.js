@@ -3,16 +3,9 @@ import createEcountSaleOrder from "./createEcountSaleOrder.js";
 import addNotionPageToDatabase from "../services/notion/add-page-to-database.js";
 import addNotionPageToOrderDatabase from "../services/notion/add-page-to-order-database.js";
 import getEcountItems from "./getEcountItems.js";
+import formatDateYYYYMMDD from "../services/format/formatDateYYYYMMDD.js";
 
 /* ----------------------------- 共用工具 ----------------------------- */
-function formatDateYYYYMMDD(iso) {
-  if (!iso) return null;
-  const d = new Date(iso);
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return [`${y}-${m}-${day}`, `${y}${m}${day}`];
-}
 
 function compactJoin(parts, sep = ", ") {
   return parts
@@ -251,7 +244,7 @@ async function buildEcountProperties(ex) {
             "UPLOAD_SER_NO": String(ex.number ?? ex.id),
             "CUST": "10015",
             "CUST_DES": "Shopify",
-            "EMP_CD": "10007",
+            "EMP_CD": "10019",
             "WH_CD": ex.singleWarehouseId === 81795907814 ? "100" : "200",
             "IO_TYPE": "13",//交易類型 免稅
             "EXCHANGE_TYPE": "00002",

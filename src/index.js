@@ -1,26 +1,32 @@
 // 套件
-import dotenv from 'dotenv'; //處理.env 環境變數
+import dotenv from 'dotenv';
 import express from 'express';
 
-import inventorySyncRoute from './routes/inventorySyncRoute.js';
+import inventorySyncRoute from './routes/inventorySyncRoute.js';     // Ecount → Shopify
 import shopifyWebhookRoute from './routes/shopifyWebhookRoute.js';
+import FBA_SyncRoute from './routes/FBA_SyncRoute.js';               // FBA → Ecount
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// 1) Webhook 需要 raw body（在路由前）
 app.use(
   '/webhook/orders/create',
   express.raw({ type: 'application/json', limit: '2mb' })
 );
 
+// 2) 掛上 Webhook 路由（內部應該處理 /webhook/orders/create）
 app.use(shopifyWebhookRoute);
 
+// 3) 其他 API 使用 JSON body
 app.use(express.json());
 
-app.use(inventorySyncRoute);
+// 4) 同步任務路由（用 base path 隔離）
+app.use('/jobs/amazon-ecount', FBA_SyncRoute);      // FBA → Ecount
+app.use('/jobs/ecount-shopify', inventorySyncRoute); // Ecount → Shopify
 
-app.listen(PORT, () =>
-  console.log(`🚀 Server on http://localhost:${PORT}`)
-);
+app.listen(PORT, () => {
+  console.log(`🚀 Server on http://localhost:${PORT}`);
+});

@@ -25,14 +25,13 @@ export default async function saveSales(SESSION_ID, inputValue) {
     } else {
       console.log("❌ 銷貨單建立失敗");
       console.log("錯誤明細：");
-      data.Data.ResultDetails.forEach((detail, i) => {
-        console.log(`Line ${i}:`, detail.Data.TotalError);
-        if (detail.Data.Errors?.length > 0) {
-          detail.Data.Errors.forEach((err) => {
-            console.log(` - 欄位 ${err.ColCd}: ${err.Message}`);
-          });
-        }
-      });
+      const resultDetails = data.Data.ResultDetails;
+        resultDetails.forEach(item => {
+          if (item.Errors) {
+            console.log('錯誤項目：', item.TotalError);
+            console.log('錯誤原因：', item.Errors);
+          }
+        })
     }
     }else{
     console.log(data.Error)

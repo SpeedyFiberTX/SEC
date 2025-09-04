@@ -9,10 +9,10 @@ const headers = {
   headers: { 'Content-Type': 'application/json' },
 }
 
-export default async function SaveBasicProduct(SESSION_ID, inputValue) {
+export default async function SavePurchases(SESSION_ID, inputValue) {
   try {
     const response = await axios.post(
-      `https://oapi${ZONE}.ecount.com/OAPI/V2/InventoryBasic/SaveBasicProduct?SESSION_ID=${SESSION_ID}`,
+      `https://oapi${ZONE}.ecount.com/OAPI/V2/Purchases/SavePurchases?SESSION_ID=${SESSION_ID}`,
       inputValue,
       headers
     );
@@ -20,9 +20,9 @@ export default async function SaveBasicProduct(SESSION_ID, inputValue) {
     const data = response.data;
     if (data.Status === '200') {
       if (data.Data.SuccessCnt > 0 && data.Data.FailCnt === 0) {
-        console.log("✅ 品項建立成功");
+        console.log("✅ 進貨單建立成功");
       } else {
-        console.log("❌ 品項建立失敗");
+        console.log("❌ 進貨單建立失敗");
         console.log("錯誤明細：");
         const resultDetails = data.Data.ResultDetails;
         resultDetails.forEach(item => {
