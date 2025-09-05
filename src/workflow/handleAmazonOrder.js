@@ -42,7 +42,7 @@ export default async function handleAmazonOrder() {
                             const qty = Number(it.QuantityOrdered ?? 0) || 0;
 
                             const currency = it?.ItemPrice?.CurrencyCode || "USD";
-                            const lineTotal = Number(it?.ItemPrice?.Amount ?? 0);
+                            const lineTotal = Number(it?.ItemPrice?.amount ?? 0);
                             const unitPrice = qty > 0 ? lineTotal / qty : lineTotal;
 
                             const unitStr = formatMoney(unitPrice, currency);  // @ $7.63
@@ -71,7 +71,7 @@ export default async function handleAmazonOrder() {
                     },
                     "訂單金額": {
                         type: "number",
-                        number: Number(order.OrderTotal.Amount),
+                        number: Number(order.OrderTotal.amount),
                     },
                     "訂單日期": {
                         type: "date",
@@ -104,3 +104,5 @@ export default async function handleAmazonOrder() {
         console.error("❌ Amazon 訂單處理錯誤：", err?.message || err);
     }
 }
+
+handleAmazonOrder()
