@@ -4,6 +4,7 @@ import addNotionPageToDatabase from "../services/notion/add-page-to-database.js"
 import addNotionPageToOrderDatabase from "../services/notion/add-page-to-order-database.js";
 import getEcountItems from "./getEcountItems.js";
 import formatDateYYYYMMDD from "../services/format/formatDateYYYYMMDD.js";
+import pushMessageToMe from "../services/line/pushMessage.js";
 
 /* ----------------------------- 共用工具 ----------------------------- */
 
@@ -182,7 +183,7 @@ function buildNotionOrderProperties(ex) {
     : ["（無商品明細）"];
 
   const itemText = itemLines.join("\n");
-  const skuList = ex.items.map(item=>item.sku);
+  const skuList = ex.items.map(item => item.sku);
   const skuText = skuList.join("\n");
 
   return {
@@ -332,7 +333,7 @@ async function buildEcountProperties(ex) {
             "ADD_DATE_03": ""
           }
         })
-      }else{
+      } else {
         SaleOrderList["SaleOrderList"].push({
           "BulkDatas": {
             "IO_DATE": ex.createdDate8,
@@ -453,6 +454,19 @@ export default async function handleShopifyOrder(order) {
     console.log(`🗓️ 日期：${ex.createdDate}`);
     console.log("📦 商品明細：\n" + ex.items.map((s) => `• ${s}`).join("\n"));
 
+    // 補充： line 通知
+
+    const message = `Shopify 有新訂單：
+    🛒 訂單編號：${ex.title}
+    👤 顧客：${ex.customerName}
+    💵 總金額：${currency(ex.total, ex.currencyCode)}
+    🗓️ 日期：${ex.createdDate}
+    📦 商品明細：
+    ${ex.items.map((s) => `• ${s}`).join("\n")}
+    `;
+
+    await pushMessageToMe(message)
+
     // 3) 組 Notion Properties
     const propertiesForNewPages = [buildNotionProperties(ex)];
     const propertiesForOrderNewPages = [buildNotionOrderProperties(ex)];
@@ -466,7 +480,7 @@ export default async function handleShopifyOrder(order) {
       }
     }
 
-        console.log("📝 開始新增資料到訂單...");
+    console.log("📝 開始新增資料到訂單...");
     for (let i = 0; i < propertiesForOrderNewPages.length; i++) {
       const res = await addNotionPageToOrderDatabase(propertiesForOrderNewPages[i]);
       if (res) {

@@ -12,5 +12,5 @@ const lineClient = new line.messagingApi.MessagingApiClient({
   channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN
 });
 
-const lineMiddleware = line.middleware(config);
+const lineMiddleware = line.middleware(config); //webhook 才用得到
 export {lineClient,lineMiddleware};
