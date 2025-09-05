@@ -452,7 +452,9 @@ export default async function handleShopifyOrder(order) {
     console.log(`👤 顧客：${ex.customerName}`);
     console.log(`💵 總金額：${currency(ex.total, ex.currencyCode)}`);
     console.log(`🗓️ 日期：${ex.createdDate}`);
-    console.log("📦 商品明細：\n" + ex.items.map((s) => `• ${s}`).join("\n"));
+    console.log("📦 商品明細：\n" + ex.items.map(
+      (i) => `• ${i.sku || "(無SKU)"} × ${i.quantity}`
+    ).join("\n"));
 
     // 補充： line 通知
 
@@ -462,7 +464,9 @@ export default async function handleShopifyOrder(order) {
     💵 總金額：${currency(ex.total, ex.currencyCode)}
     🗓️ 日期：${ex.createdDate}
     📦 商品明細：
-    ${ex.items.map((s) => `• ${s}`).join("\n")}
+    ${ex.items.map(
+      (i) => `• ${i.sku || "(無SKU)"} × ${i.quantity}`
+    ).join("\n")}
     `;
 
     await pushMessageToMe(message)
