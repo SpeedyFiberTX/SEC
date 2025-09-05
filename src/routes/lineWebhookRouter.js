@@ -12,9 +12,7 @@ router.post('/', lineMiddleware, async (req, res) => {
 
   const events = req.body.events;
   for (const event of events) {
-    if (event.source.type === 'group') {
-      console.log('📢 群組 ID:', event.source.groupId);
-    }
+      console.log('📢 Line 收到訊息');
   }
 });
 

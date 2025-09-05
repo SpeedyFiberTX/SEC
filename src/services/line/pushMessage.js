@@ -1,11 +1,11 @@
 import { lineClient } from '../../line-config.js';
 
-const userId = process.env.LINE_USER_ID; // 事先存好的 ID
+const groupId = process.env.LINE_GROUP_ID; // 事先存好的 ID
 
 export default async function pushMessageToMe(message) {
   try {
     await lineClient.pushMessage({
-      to: userId,
+      to: groupId,
       messages: [
         { type: 'text', text: message }
       ]
