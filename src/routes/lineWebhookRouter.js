@@ -2,14 +2,15 @@ import express from 'express';
 import { lineClient, lineMiddleware } from '../line-config.js';
 
 const router = express.Router();
-// const userId = process.env.LINE_USER_ID;
+const userId = process.env.LINE_USER_ID;
 
 router.post('/', lineMiddleware, async (req, res) => {
 
     try {
-        const events = req.body.events; for (const event of events) {
-            if (event.source.userId) {
-                console.log("使用者 ID:", event.source.userId); // 主動推送訊息 
+        const events = req.body.events;
+        for (const event of events) {
+            if (userId) {
+                console.log("使用者 ID:", userId); // 主動推送訊息 
                 await lineClient.pushMessage(userId, { type: 'text', text: '哈囉 👋 這是直接傳給你的訊息！' });
                 console.log("訊息已發送！");
             }
