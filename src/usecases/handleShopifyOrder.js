@@ -1,10 +1,10 @@
-// import createEcountSale from "../usecases/createEcountSale.js";
-import createEcountSaleOrder from "./createEcountSaleOrder.js";
 import addNotionPageToDatabase from "../services/notion/add-page-to-database.js";
 import addNotionPageToOrderDatabase from "../services/notion/add-page-to-order-database.js";
-import getEcountItems from "./getEcountItems.js";
 import formatDateYYYYMMDD from "../services/format/formatDateYYYYMMDD.js";
 import pushMessageToMe from "../services/line/pushMessage.js";
+import login from "../services/ecount/login.js";
+import saleOrder from "../services/ecount/SaleOrder.js";
+import getItems from '../services/ecount/getItems.js';
 
 /* ----------------------------- 共用工具 ----------------------------- */
 
@@ -216,14 +216,14 @@ function buildNotionOrderProperties(ex) {
 }
 
 /* ------------------------ 組 Ecount Properties ------------------------ */
-async function buildEcountProperties(ex) {
+async function buildEcountProperties(SESSION_ID,ex) {
 
 
 
   try {
 
     // 取得Ecount全產品資料
-    const EcountProductList = await getEcountItems();
+    const EcountProductList = await getItems(SESSION_ID);
 
     // 要return的資料
     const SaleOrderList = {
@@ -447,14 +447,17 @@ export default async function handleShopifyOrder(order) {
     // 1) 萃取資料
     const ex = extractOrderFields(order);
 
+    const itemText = ex.items.map(
+      (i) =>
+        `• SKU: ${i.sku || "N/A"} × ${i.quantity}`
+    ).join("\n");
+
     // 2) 日誌
     console.log("🛒 處理新訂單：", ex.title);
     console.log(`👤 顧客：${ex.customerName}`);
     console.log(`💵 總金額：${currency(ex.total, ex.currencyCode)}`);
     console.log(`🗓️ 日期：${ex.createdDate}`);
-    console.log("📦 商品明細：\n" + ex.items.map(
-      (i) => `• ${i.sku || "(無SKU)"} × ${i.quantity}`
-    ).join("\n"));
+    console.log("📦 商品明細：\n" + itemText);
 
     // 補充： line 通知
 
@@ -464,10 +467,7 @@ export default async function handleShopifyOrder(order) {
     💵 總金額：${currency(ex.total, ex.currencyCode)}
     🗓️ 日期：${ex.createdDate}
     📦 商品明細：
-    ${ex.items.map(
-      (i) => `• ${i.sku || "(無SKU)"} × ${i.quantity}`
-    ).join("\n")}
-    `;
+    ${itemText}`;
 
     await pushMessageToMe(message)
 
@@ -493,9 +493,12 @@ export default async function handleShopifyOrder(order) {
     }
 
     // 5) 組 Ecount Properties
-    const inputValue = await buildEcountProperties(ex);
+    const SESSION_ID = await login();
+    if (!SESSION_ID) throw new Error('SESSION_ID 為空');
+
+    const inputValue = await buildEcountProperties(SESSION_ID,ex);
     // 6)（選用）同步 Ecount 的流程可在這裡呼叫
-    await createEcountSaleOrder(inputValue);
+    await saleOrder(SESSION_ID,inputValue);
 
   } catch (err) {
     console.error("❌ Shopify 訂單處理錯誤：", err?.message || err);

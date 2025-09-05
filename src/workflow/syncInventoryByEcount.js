@@ -1,12 +1,20 @@
 import runGetVariantsID from "../services/shopify/getVariantsID.js";
-import getEcountInventory from "../usecases/getEcountInventory.js";
 import runSetInventory from "../services/shopify/setInventory.js";
-import getEcountItems from "../usecases/getEcountItems.js";
+
+import login from '../services/ecount/login.js';
+import fetchInventory from '../services/ecount/fetchInventory.js';
+import getItems from '../services/ecount/getItems.js';
+
+
 // 整合Ecount資料並同步到Shopify流程
 export default async function syncInventoryByEcount() {
     try {
-        const ecountInventory = await getEcountInventory(); //取得產品庫存數量
-        const ecountProductList = await getEcountItems(); //取得產品SKU
+
+        // 登入
+        const SESSION_ID = await login();
+        if (!SESSION_ID) throw new Error('SESSION_ID 為空');
+        const ecountProductList = await getItems(SESSION_ID); //取得 Ecount 產品列表
+        const ecountInventory = await fetchInventory(SESSION_ID); //取得 Ecount 產品庫存數量
 
         // 合併資料
         // const merged = ecountInventory.map(item => {
