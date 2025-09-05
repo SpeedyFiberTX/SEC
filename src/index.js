@@ -5,7 +5,8 @@ import express from 'express';
 import inventorySyncRoute from './routes/inventorySyncRoute.js';     // Ecount → Shopify
 import shopifyWebhookRoute from './routes/shopifyWebhookRoute.js';
 import FBA_SyncRoute from './routes/FBA_SyncRoute.js';               // FBA → Ecount
-import AmazonOrder_notion from './routes/AmazonOrder_notion.js'
+import AmazonOrder_notion from './routes/AmazonOrder_notion.js';
+import webhookRouter from './routes/webhook.js';
 
 dotenv.config();
 
