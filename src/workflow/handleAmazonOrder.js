@@ -29,6 +29,7 @@ export default async function handleAmazonOrder() {
             for (const order of Orders) {
 
                 const createdDate = formatDateYYYYMMDD(order.PurchaseDate);
+                const orderAmount = Number(order?.OrderTotal?.Amount ?? 0);
 
                 // 逐筆抓取訂單明細
                 let itemText = "";
@@ -41,8 +42,13 @@ export default async function handleAmazonOrder() {
                             const sku = it.SellerSKU ?? "";
                             const qty = Number(it.QuantityOrdered ?? 0) || 0;
 
-                            const currency = it?.ItemPrice?.CurrencyCode || "USD";
-                            const lineTotal = Number(it?.ItemPrice?.amount ?? 0);
+                            // 先檢查有沒有價格
+                            if (!it.ItemPrice) {
+                                return `• ${title} 〔SKU: ${sku}〕 × ${qty} （尚無價格，可能是 Pending）`;
+                            }
+
+                            const currency = it.ItemPrice.CurrencyCode ?? "USD";
+                            const lineTotal = Number(it.ItemPrice.Amount ?? 0);
                             const unitPrice = qty > 0 ? lineTotal / qty : lineTotal;
 
                             const unitStr = formatMoney(unitPrice, currency);  // @ $7.63
@@ -71,7 +77,7 @@ export default async function handleAmazonOrder() {
                     },
                     "訂單金額": {
                         type: "number",
-                        number: Number(order.OrderTotal.amount),
+                        number: orderAmount,
                     },
                     "訂單日期": {
                         type: "date",
