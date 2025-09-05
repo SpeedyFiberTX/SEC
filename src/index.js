@@ -25,6 +25,7 @@ app.use(shopifyWebhookRoute);
 app.use(express.json());
 
 // 4) 同步任務路由（用 base path 隔離）
+app.use('/webhook', webhookRouter); //line bot 
 app.use('/jobs/amazon-ecount', FBA_SyncRoute);      // FBA → Ecount
 app.use('/jobs/ecount-shopify', inventorySyncRoute); // Ecount → Shopify
 app.use('/jobs/amazon-order', AmazonOrder_notion); //Amazon order → notion
