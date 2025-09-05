@@ -216,7 +216,7 @@ function buildNotionOrderProperties(ex) {
 }
 
 /* ------------------------ 組 Ecount Properties ------------------------ */
-async function buildEcountProperties(SESSION_ID,ex) {
+async function buildEcountProperties(SESSION_ID, ex) {
 
 
 
@@ -447,10 +447,10 @@ export default async function handleShopifyOrder(order) {
     // 1) 萃取資料
     const ex = extractOrderFields(order);
 
-    const itemText = ex.items.map(
-      (i) =>
-        `• SKU: ${i.sku || "N/A"} × ${i.quantity}`
-    ).join("\n");
+    // 先把商品明細組成文字（這裡示範 SKU × 數量）
+    const itemText = ex.items.map(i =>
+      `• SKU: ${i.sku || "N/A"} × ${i.quantity}`
+    ).join('\n');
 
     // 2) 日誌
     console.log("🛒 處理新訂單：", ex.title);
@@ -461,13 +461,18 @@ export default async function handleShopifyOrder(order) {
 
     // 補充： line 通知
 
-    const message = `Shopify 有新訂單：
-    🛒 訂單編號：${ex.title}
-    👤 顧客：${ex.customerName}
-    💵 總金額：${currency(ex.total, ex.currencyCode)}
-    🗓️ 日期：${ex.createdDate}
-    📦 商品明細：
-    ${itemText}`;
+    // 用陣列逐行組訊息，避免任何前導空白
+    const messageLines = [
+      `Shopify 有新訂單：`,
+      `🧾 訂單編號：${ex.title}`,
+      `🧑‍💼 顧客：${ex.customerName}`,
+      `💵 總金額：${currency(ex.total, ex.currencyCode)}`,
+      `📅 日期：${ex.createdDate}`,
+      `📦 商品明細：`,
+      itemText,
+    ];
+
+    const message = messageLines.join('\n');
 
     await pushMessageToMe(message)
 
@@ -496,9 +501,9 @@ export default async function handleShopifyOrder(order) {
     const SESSION_ID = await login();
     if (!SESSION_ID) throw new Error('SESSION_ID 為空');
 
-    const inputValue = await buildEcountProperties(SESSION_ID,ex);
+    const inputValue = await buildEcountProperties(SESSION_ID, ex);
     // 6)（選用）同步 Ecount 的流程可在這裡呼叫
-    await saleOrder(SESSION_ID,inputValue);
+    await saleOrder(SESSION_ID, inputValue);
 
   } catch (err) {
     console.error("❌ Shopify 訂單處理錯誤：", err?.message || err);
