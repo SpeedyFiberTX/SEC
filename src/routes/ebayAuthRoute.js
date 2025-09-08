@@ -34,6 +34,41 @@ async function getUserAccessToken() {
   return next.accessToken;
 }
 
+/* -------------------- 除錯端點 -------------------- */
+
+// A) 環境變數是否真的被讀到
+router.get('/envcheck', (req, res) => {
+  const { EBAY_CLIENT_ID, EBAY_CLIENT_SECRET, EBAY_RU_NAME, EBAY_ENV: ENV } = process.env;
+  res.json({
+    EBAY_ENV: ENV,
+    EBAY_CLIENT_ID_PREFIX: (EBAY_CLIENT_ID || '').slice(0, 8),
+    EBAY_CLIENT_SECRET_LEN: (EBAY_CLIENT_SECRET || '').length,
+    EBAY_RU_NAME
+  });
+});
+
+// B) 試著拿 application token（不需使用者授權）
+router.get('/debug', async (req, res) => {
+  try {
+    const baseScope = EBAY_ENV === 'SANDBOX'
+      ? 'https://api.sandbox.ebay.com/oauth/api_scope'
+      : 'https://api.ebay.com/oauth/api_scope';
+    const appTok = await oauth.getApplicationToken(EBAY_ENV, baseScope);
+    res.json({
+      ok: true,
+      application_token_sample: (appTok.access_token || '').slice(0, 24) + '...'
+    });
+  } catch (e) {
+    res.status(500).json({
+      ok: false,
+      message: 'Application token failed',
+      error: e?.response?.data || e?.message || String(e)
+    });
+  }
+});
+
+/* -------------------- OAuth 流程 -------------------- */
+
 // 1) 前往 eBay 同意頁
 router.get('/authorize', (req, res) => {
   const url = oauth.generateUserAuthorizationUrl(EBAY_ENV, scopes, {
@@ -43,11 +78,28 @@ router.get('/authorize', (req, res) => {
   return res.redirect(url);
 });
 
-// 2) eBay 回呼（請在 Sign-in Settings 的 Accepted URL 設為 https://你的網域/ebay/callback）
+// 2) eBay 回呼（Accepted URL 設為 https://你的網域/ebay/callback）
 router.get('/callback', async (req, res) => {
   try {
+    const { EBAY_CLIENT_ID, EBAY_CLIENT_SECRET, EBAY_RU_NAME } = process.env;
     const code = req.query.code;
-    if (!code) return res.status(400).send('Missing ?code');
+
+    // 先做必要參數檢查（避免 SDK 直接丟 "credentials configured incorrectly"）
+    const missing = [];
+    if (!EBAY_CLIENT_ID) missing.push('EBAY_CLIENT_ID');
+    if (!EBAY_CLIENT_SECRET) missing.push('EBAY_CLIENT_SECRET');
+    if (!EBAY_RU_NAME) missing.push('EBAY_RU_NAME (RuName)');
+    if (!code) missing.push('query.code');
+    if (missing.length) {
+      console.error('[ebay/callback] missing:', missing);
+      return res.status(500).send('Missing: ' + missing.join(', '));
+    }
+
+    console.log('[ebay/callback] ENV OK', {
+      ENV: EBAY_ENV,
+      CLIENT_ID_PREFIX: EBAY_CLIENT_ID.slice(0, 8),
+      RU_NAME: EBAY_RU_NAME
+    });
 
     const now = Math.floor(Date.now() / 1000);
     const data = await oauth.exchangeCodeForAccessToken(EBAY_ENV, code);
