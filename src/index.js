@@ -7,6 +7,7 @@ import shopifyWebhookRoute from './routes/shopifyWebhookRoute.js';
 import FBA_SyncRoute from './routes/FBA_SyncRoute.js';               // FBA → Ecount
 import AmazonOrder_notion from './routes/AmazonOrder_notion.js';
 import lineWebhookRouter from './routes/lineWebhookRouter.js';
+import ebayAuthRoute from './routes/ebayAuthRoute.js';
 
 dotenv.config();
 
