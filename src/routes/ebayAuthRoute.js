@@ -82,17 +82,27 @@ router.get('/authorize', (req, res) => {
 router.get('/callback', async (req, res) => {
   try {
     const { EBAY_CLIENT_ID, EBAY_CLIENT_SECRET, EBAY_RU_NAME } = process.env;
-    const code = req.query.code;
+    const q = req.query; // 👈 所有回傳參數
+    const code = q.code;
 
-    // 先做必要參數檢查（避免 SDK 直接丟 "credentials configured incorrectly"）
+    // 顯示 eBay 回來的所有參數（方便判讀 error / state）
+    console.log('[ebay/callback] full query:', q);
+
     const missing = [];
     if (!EBAY_CLIENT_ID) missing.push('EBAY_CLIENT_ID');
     if (!EBAY_CLIENT_SECRET) missing.push('EBAY_CLIENT_SECRET');
     if (!EBAY_RU_NAME) missing.push('EBAY_RU_NAME (RuName)');
     if (!code) missing.push('query.code');
+
     if (missing.length) {
+      // 若缺 code，但有 error，就直接顯示錯誤資訊
+      if (!code && (q.error || q.error_description)) {
+        return res
+          .status(400)
+          .send(`OAuth error: ${q.error} - ${q.error_description || ''}`);
+      }
       console.error('[ebay/callback] missing:', missing);
-      return res.status(500).send('Missing: ' + missing.join(', '));
+      return res.status(400).send('Missing: ' + missing.join(', '));
     }
 
     console.log('[ebay/callback] ENV OK', {
