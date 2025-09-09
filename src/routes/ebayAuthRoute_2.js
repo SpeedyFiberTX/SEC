@@ -1,72 +1,72 @@
 // routes/ebayAuthRoute.js
 import express from 'express';
-import crypto from 'crypto';
 import {
   buildConsentUrl,
   exchangeCodeForUserToken,
   ensureUserAccessToken,
   tokenStore,
-} from '../services/ebay/ebayAuth.js';
+} from '../services/ebayAuth.js';
+import { createSignedState, verifySignedState } from '../services/ebay/stateSigner.js';
 
 const router = express.Router();
 
-// In-memory anti-CSRF state（實務上請用 session/redis）
-const stateCache = new Map();  // state -> createdAt(ms)
-const STATE_TTL_MS = 5 * 60 * 1000;
+// 可選：防重放，一次性使用清單（正式環境建議改 Redis）
+const usedJti = new Set();
+const USED_TTL_MS = (Number(process.env.EBAY_STATE_TTL_SEC ?? 900) + 60) * 1000;
 
-// 產生授權連結（前端可以直接打這支 API，拿到 URL 後導向）
+// 產生授權連結：可傳 userId 綁定到你系統的使用者
+// e.g. GET /ebay/connect?userId=abc123
 router.get('/connect', (req, res) => {
   try {
-    const state = crypto.randomUUID();
+    const userId = req.query.userId || null;
+    const state = createSignedState({ userId });
+
+    // 把我們簽好的 state 放進 eBay 授權 URL
     const { url } = buildConsentUrl({ state });
-    stateCache.set(state, Date.now());
     res.json({ ok: true, url, state });
   } catch (err) {
     res.status(500).json({ ok: false, message: String(err?.message || err) });
   }
 });
 
-// eBay 回呼（請到 eBay Dev Portal 把 RuName 指到這支路由的對應網址）
-// 注意：真正的 redirect_uri 是 RuName 字串，eBay 會把使用者導回 RuName 設定的 URL
+// eBay 回呼
 router.get('/callback', async (req, res) => {
   try {
-    const { code, state, expires_in } = req.query;
+    const { code, state } = req.query;
+    if (!code || !state) return res.status(400).send('缺少 code 或 state');
 
-    // 驗證 state
-    const ts = stateCache.get(state);
-    stateCache.delete(state);
-    if (!ts || (Date.now() - ts) > STATE_TTL_MS) {
-      return res.status(400).send('state 驗證失敗或逾時，請重試連結流程');
+    // 驗證「簽名 state」
+    const payload = verifySignedState(state); // 會丟錯就被 catch
+    if (usedJti.has(payload.jti)) {
+      return res.status(400).send('state 已使用過，請重新連結流程');
     }
+    // 標記為已用，TTL 到就移除（簡易作法）
+    usedJti.add(payload.jti);
+    setTimeout(() => usedJti.delete(payload.jti), USED_TTL_MS);
 
-    if (!code) {
-      return res.status(400).send('缺少 code');
-    }
-
+    // 兌換 user token
     const token = await exchangeCodeForUserToken({ code });
 
-    // 你可以在這裡 redirect 到前端頁面，或直接顯示綁定成功
+    // TODO：把 token 與 payload.uid 綁定存 DB
+    // e.g. await saveEbayTokens({ userId: payload.uid, ...token })
+
     res.status(200).send(`
       <h3>eBay 綁定成功 🎉</h3>
+      <p>User: ${payload.uid ?? '(未提供)'}</p>
       <p>access_token 將於 ${Math.round((token.accessTokenExpAt - Date.now())/1000)} 秒後到期。</p>
       <p>refresh_token 已保存（示範：記在記憶體），請改為你的資料庫。</p>
     `);
   } catch (err) {
-    console.error('[ebay/callback] Error:', err);
-    res.status(500).send(`綁定失敗：${String(err?.message || err)}`);
+    console.error('[ebay/callback] state 驗證失敗或逾時：', err);
+    res.status(400).send(`state 驗證失敗或逾時，請重試連結流程`);
   }
 });
 
-// 範例：之後要呼叫賣家相關 API 前，先確保 access_token 可用
+// 測試用
 router.get('/demo/me', async (req, res) => {
   try {
     const accessToken = await ensureUserAccessToken();
-    // 這裡只是示範；你可以改成呼叫 Sell Fulfillment API / Inventory API 等等
-    res.json({
-      ok: true,
-      usingAccessToken: accessToken ? 'Yes' : 'No',
-      tokenMeta: tokenStore.get(),
-    });
+    res.json({ ok: true, tokenPreview: accessToken?.slice(0, 24) + '...', tokenMeta: tokenStore.get() });
   } catch (err) {
     res.status(401).json({ ok: false, message: String(err?.message || err) });
   }
