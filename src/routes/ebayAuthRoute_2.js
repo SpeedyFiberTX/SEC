@@ -5,7 +5,7 @@ import {
   exchangeCodeForUserToken,
   ensureUserAccessToken,
   tokenStore,
-} from '../services/ebayAuth.js';
+} from '../services/ebay/ebayAuth.js';
 import { createSignedState, verifySignedState } from '../services/ebay/stateSigner.js';
 
 const router = express.Router();
