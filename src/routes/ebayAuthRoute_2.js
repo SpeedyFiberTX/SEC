@@ -6,7 +6,7 @@ import {
   exchangeCodeForUserToken,
   ensureUserAccessToken,
   tokenStore,
-} from '../services/ebayAuth.js';
+} from '../services/ebay/ebayAuth.js';
 
 const router = express.Router();
 
