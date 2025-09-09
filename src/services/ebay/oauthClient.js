@@ -1,6 +1,5 @@
 import 'dotenv/config';
-import pkg from 'ebay-oauth-nodejs-client';
-const EbayAuthToken = pkg;
+import eBayAuthToken from 'ebay-oauth-nodejs-client';
 
 const isSandbox = (process.env.EBAY_ENV || 'SANDBOX').toUpperCase() === 'SANDBOX';
 
@@ -19,8 +18,8 @@ export const scopes = [
   `${baseScope}/sell.account.readonly`
 ];
 
-export const oauth = new EbayAuthToken({
-  clientId: process.env.EBAY_CLIENT_ID,
-  clientSecret: process.env.EBAY_CLIENT_SECRET,
-  redirectUri: process.env.EBAY_RU_NAME
+export const oauth = new eBayAuthToken({
+  clientId: process.env.EBAY_CLIENT_ID?.trim(),
+  clientSecret: process.env.EBAY_CLIENT_SECRET?.trim(),
+  redirectUri: process.env.EBAY_RU_NAME?.trim(),
 });
