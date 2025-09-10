@@ -25,7 +25,8 @@ function generateState() {
 router.get('/login', async (req, res) => {
     const state = generateState();
 
-    const authUrl = `${endpoint}?client_id=${ebay_client_id}&response_type=code&redirect_uri=${ebay_ru_name}&scope=${ebay_scopes}`;
+    // const authUrl = `${endpoint}?client_id=${ebay_client_id}&response_type=code&redirect_uri=${ebay_ru_name}&scope=${ebay_scopes}`;
+    const authUrl = `${endpoint}?client_id=${encodeURIComponent(ebay_client_id)}&response_type=code&redirect_uri=${encodeURIComponent(ebay_ru_name)}&scope=${encodeURIComponent(ebay_scopes)}&state=${state}`;
     console.log(authUrl);
     res.redirect(authUrl);
 
