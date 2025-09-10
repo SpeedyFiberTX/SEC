@@ -55,14 +55,13 @@ router.get('/callback', async (req, res) => {
         const access_token = await client_grant_flow(code)
 
         console.log(access_token)
+        res.send(`OK! code=${code}, state=${state}, access token=${access_token}`);
 
     } catch (err) {
         console.error(
             "get access token error:",
             err?.response?.data || err.message
         );
-    }finally{
-        res.send(`OK! code=${code}, state=${state}, access token=${access_token}`);
     }
 
 });
