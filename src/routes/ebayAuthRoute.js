@@ -30,7 +30,6 @@ router.get('/login', async (req, res) => {
         redirect_uri: ebay_ru_name,
         response_type: 'code',
         scope: ebay_scopes,
-        state: state,
     });
 
     const authUrl = `${endpoint}?${params}`;
