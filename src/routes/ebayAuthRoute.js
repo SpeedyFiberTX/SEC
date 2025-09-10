@@ -2,7 +2,7 @@ import express from 'express';
 import dotenv from "dotenv";
 import axios from 'axios';
 import crypto from 'crypto';
-import client_grant_flow from '../services/ebay/client_grant_flow';
+import client_grant_flow from '../services/ebay/client_grant_flow.js';
 
 dotenv.config();
 
