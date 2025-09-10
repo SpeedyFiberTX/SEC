@@ -12,3 +12,5 @@ router.get('/callback', (req, res) => {
 
   res.send(`OK! code=${code}, state=${state}`);
 });
+
+export default router;
