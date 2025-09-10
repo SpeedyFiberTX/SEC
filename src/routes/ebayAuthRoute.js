@@ -2,7 +2,8 @@ import express from 'express';
 import dotenv from "dotenv";
 import axios from 'axios';
 import crypto from 'crypto';
-import client_grant_flow from '../services/ebay/client_grant_flow.js';
+import exchangeCodeForToken from '../services/ebay/exchangeCodeForToken.js';
+import { saveEbayTokens } from '../services/renderDB/updateData.js';
 
 dotenv.config();
 
@@ -52,17 +53,18 @@ router.get('/callback', async (req, res) => {
 
     try {
 
-        const access_token = await client_grant_flow(code)
+        const data = await exchangeCodeForToken(code);
 
-        console.log(access_token)
-        res.send(`OK! code=${code}, state=${state}, access token=${access_token}`);
+        const saveRow = await saveEbayTokens(data, state);
+
+        console.log('授權資料已儲存，row id =', saved.id);
+        res.send('授權成功，您可以關閉此視窗');
 
     } catch (err) {
-        console.error(
-            "get access token error:",
-            err?.response?.data || err.message
-        );
+        console.error('get access token error:', err?.response?.data || err.message);
+        res.status(500).send('token 交換或儲存失敗');
     }
+
 
 });
 

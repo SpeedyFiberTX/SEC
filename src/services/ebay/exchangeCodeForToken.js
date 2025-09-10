@@ -22,7 +22,7 @@ const headers = {
 
 
 
-export default async function client_grant_flow(code) {
+export default async function exchangeCodeForToken(code) {
     const body = new URLSearchParams();
     body.append("grant_type", "authorization_code");
     body.append("code", code);
@@ -31,14 +31,12 @@ export default async function client_grant_flow(code) {
     try {
         const response = await axios.post(endpoint, body.toString(), headers);
 
-        return response.data.access_token
+        return response.data
 
     } catch (err) {
-        if (axios.isAxiosError(err)) {
-            console.error("[eBay Token Error]", err.response?.status, err.response?.data || err.message);
-        } else {
-            console.error("[eBay Token Error]", err);
-        }
+        const status = err?.response?.status;
+        const payload = err?.response?.data;
+        console.error('[eBay exchange error]', status, payload || err.message);
         throw err;
     }
 }
