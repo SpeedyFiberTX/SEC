@@ -51,18 +51,23 @@ router.get('/callback', async (req, res) => {
         return res.status(400).send(`OAuth error: ${error} - ${error_description}`);
     }
 
+    let tokenResponse;
     try {
-
-        const data = await exchangeCodeForToken(code);
-
-        const saveRow = await saveEbayTokens(data, state);
-
-        console.log('授權資料已儲存，row id =', saveRow.id);
-        res.send('授權成功，您可以關閉此視窗');
-
+        tokenResponse = await exchangeCodeForToken(code);
+        // 檢查拿到什麼
+        console.log('[tokenResponse keys]', Object.keys(tokenResponse || {}));
     } catch (err) {
-        console.error('get access token error:', err?.response?.data || err.message);
-        res.status(500).send('token 交換或儲存失敗');
+        console.error('[exchangeCodeForToken] error:', err?.response?.status, err?.response?.data || err);
+        return res.status(500).send('token 交換失敗');
+    }
+
+    try {
+        const saved = await saveEbayTokens(tokenResponse, state);
+        console.log('授權資料已儲存，row id =', saved.id);
+        return res.send('授權成功，您可以關閉此視窗');
+    } catch (err) {
+        console.error('[saveEbayTokens] error:', err?.code, err?.message, err);
+        return res.status(500).send('token 儲存失敗');
     }
 
 
