@@ -25,15 +25,16 @@ function generateState() {
 router.get('/login', async (req, res) => {
     const state = generateState();
 
-    const params = new URLSearchParams({
-        client_id: ebay_client_id,
-        redirect_uri: ebay_ru_name,
-        response_type: 'code',
-        scope: ebay_scopes,
-        state: state,
-    });
+    // const params = new URLSearchParams({
+    //     client_id: ebay_client_id,
+    //     redirect_uri: ebay_ru_name,
+    //     response_type: 'code',
+    //     scope: ebay_scopes,
+    //     state: state,
+    // });
 
-    const authUrl = `${endpoint}?${params}`;
+    const authUrl = `${endpoint}?client_id=${ebay_client_id}&response_type=code&redirect_uri=${ebay_ru_name}&scope=${ebay_scopes}&state=${state}`;
+    console.log(authUrl);
     res.redirect(authUrl);
 
 })
