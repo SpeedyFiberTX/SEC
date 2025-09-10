@@ -57,7 +57,7 @@ router.get('/callback', async (req, res) => {
 
         const saveRow = await saveEbayTokens(data, state);
 
-        console.log('授權資料已儲存，row id =', saved.id);
+        console.log('授權資料已儲存，row id =', saveRow.id);
         res.send('授權成功，您可以關閉此視窗');
 
     } catch (err) {
