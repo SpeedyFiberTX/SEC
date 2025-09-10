@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from "dotenv";
 import axios from 'axios';
 import crypto from 'crypto';
+import client_grant_flow from '../services/ebay/client_grant_flow';
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ function generateState() {
     return crypto.randomBytes(16).toString("hex");
 }
 
+// 使用者進入 /ebay/login 被導航到ebay進行授權
 router.get('/login', async (req, res) => {
     const state = generateState();
 
@@ -34,20 +36,35 @@ router.get('/login', async (req, res) => {
     // });
 
     const authUrl = `${endpoint}?client_id=${ebay_client_id}&response_type=code&redirect_uri=${ebay_ru_name}&scope=${ebay_scopes}&state=${state}`;
-    console.log(authUrl);
+    // console.log(authUrl);
     res.redirect(authUrl);
 
 })
 
-router.get('/callback', (req, res) => {
+// ebay 授權通過後 回傳 code 和 state (剛剛我們傳出去的state)
+router.get('/callback', async (req, res) => {
     const { code, state, error, error_description } = req.query;
-    console.log('query:', req.query);
+    // console.log('query:', req.query);
 
     if (error) {
         return res.status(400).send(`OAuth error: ${error} - ${error_description}`);
     }
 
-    res.send(`OK! code=${code}, state=${state}`);
+    try {
+
+        const access_token = await client_grant_flow(code)
+
+        console.log(access_token)
+
+    } catch (err) {
+        console.error(
+            "get access token error:",
+            err?.response?.data || err.message
+        );
+    }finally{
+        res.send(`OK! code=${code}, state=${state}, access token=${access_token}`);
+    }
+
 });
 
 export default router;

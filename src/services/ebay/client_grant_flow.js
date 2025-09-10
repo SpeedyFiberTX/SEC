@@ -3,13 +3,10 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-// 還不確定要幹嘛用的
-const ebay_env = process.env.EBAY_ENV;
-
 // APP資訊
 const ebay_client_id = process.env.EBAY_CLIENT_ID;
 const ebay_client_secret = process.env.EBAY_CLIENT_SECRET;
-const ebay_scopes = process.env.EBAY_SCOPES;
+const ebay_ru_name = process.env.EBAY_RU_NAME;
 
 const endpoint = 'https://api.sandbox.ebay.com/identity/v1/oauth2/token';
 
@@ -25,15 +22,16 @@ const headers = {
 
 
 
-export default async function client_grant_flow() {
+export default async function client_grant_flow(code) {
     const body = new URLSearchParams();
-    body.append("grant_type", "client_credentials");
-    body.append("scope", ebay_scopes); // 多個 scope 用空白分隔
+    body.append("grant_type", "authorization_code");
+    body.append("code", code);
+    body.append("redirect_uri", ebay_ru_name); // 多個 scope 用空白分隔
 
     try {
         const response = await axios.post(endpoint, body.toString(), headers);
 
-        console.log(response.data.access_token);
+        return response.data.access_token
 
     } catch (err) {
         if (axios.isAxiosError(err)) {
@@ -44,5 +42,3 @@ export default async function client_grant_flow() {
         throw err;
     }
 }
-
-client_grant_flow();
