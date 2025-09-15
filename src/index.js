@@ -32,7 +32,7 @@ app.use('/line-webhook', (err, req, res, next) => {
 });
 
 // eBay Notifications
-app.use('/ebay',eBayNotificationsRoute);
+app.use('/ebay/notifications',eBayNotificationsRoute);
 
 // 其他 API 使用 JSON body
 app.use(express.json());
@@ -41,7 +41,7 @@ app.use(express.json());
 app.use('/jobs/amazon-ecount', FBA_SyncRoute);      // FBA → Ecount
 app.use('/jobs/ecount-shopify', inventorySyncRoute); // Ecount → Shopify
 app.use('/jobs/amazon-order', AmazonOrder_notion); //Amazon order → notion
-app.use('/ebayWebhook', ebayAuthRoute);
+app.use('/ebay', ebayAuthRoute);
 
 app.listen(PORT, () => {
   console.log(`🚀 Server on http://localhost:${PORT}`);
