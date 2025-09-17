@@ -2,7 +2,7 @@
 
 // API
 import login from '../services/ecount/login.js';
-import fetchInventory from '../services/ecount/fetchInventory.js';
+import fetchInventory from '../services/ecount/getInventoryByStorehouse_FBA.js'
 import getItems from '../services/ecount/getItems.js';
 import saveSales from "../services/ecount/saveSales.js";
 import SavePurchases from "../services/ecount/SavePurchases.js";
@@ -139,3 +139,5 @@ export default async function syncAmazonInventoryToEcount() {
         console.error("同步庫存失敗", err.response?.data || err.message);
     }
 }
+
+syncAmazonInventoryToEcount()
