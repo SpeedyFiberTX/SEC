@@ -7,7 +7,7 @@ import saleOrder from "../services/ecount/SaleOrder.js";
 //         "BulkDatas": {
 //         "IO_DATE": ex.createdDate8,
 //         "UPLOAD_SER_NO": String(ex.number ?? ex.id),
-//         "CUST": "10015",
+//         "CUST": "PF002",
 //         "CUST_DES": "Shopify",
 //         "EMP_CD": "10007",
 //         "WH_CD": ex.singleWarehouseId === 81795907814 ? "100" : "200",

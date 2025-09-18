@@ -9,7 +9,7 @@ import login from "../services/ecount/login_test.js";
 //        "ORD_NO": "",
 //        "IO_DATE": "20250903", //日期
 //        "UPLOAD_SER_NO": "3001", //這邊要給個編號
-//        "CUST": "10018", //Amazon 庫存同步
+//        "CUST": "PF004", //Amazon 庫存同步
 //        "CUST_DES": "",
 //        "EMP_CD": "",
 //        "WH_CD": "300", //FBA 倉庫

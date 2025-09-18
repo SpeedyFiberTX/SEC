@@ -10,7 +10,7 @@ export default function buildSales_amazon(newSalesProducts) {
         "BulkDatas": {
           "IO_DATE": date[1],
           "UPLOAD_SER_NO": date[1].slice(-4),
-          "CUST": "10018",
+          "CUST": "PF004",
           "CUST_DES": "",
           "EMP_CD": "10019",
           "WH_CD": "300",

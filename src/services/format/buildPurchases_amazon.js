@@ -12,7 +12,7 @@ export default function buildPurchases_amazon(newPurchasesProducts) {
                 "ORD_NO": "",
                 "IO_DATE": date[1], //日期
                 "UPLOAD_SER_NO": date[1].slice(-4), //這邊要給個編號
-                "CUST": "10018", //Amazon 庫存同步
+                "CUST": "PF004", //Amazon 庫存同步
                 "CUST_DES": "",
                 "EMP_CD": "10019",//同步機器人
                 "WH_CD": "300", //FBA 倉庫
