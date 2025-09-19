@@ -1,7 +1,7 @@
 import express from 'express';
 import crypto from "crypto";
 
-import pushMessageToDeveloper from '../services/line/pushMessageToDeveloper';
+import pushMessageToDeveloper from '../services/line/pushMessageToDeveloper.js';
 
 const router = express.Router();
 
