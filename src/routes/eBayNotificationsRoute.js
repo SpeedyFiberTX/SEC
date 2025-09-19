@@ -41,8 +41,8 @@ router.post('/deletion-notify',express.json({ limit: '1mb' }), (req, res) => {
   res.status(200).send('OK');
   setImmediate(() => {
     try {
-      console.log("[Notification] headers:", req.headers);
-      console.log("[Notification] body:", req.body);
+      // console.log("[Notification] headers:", req.headers); // 之後要補驗籤
+      // console.log("[Notification] body:", req.body);
 
       // 安全取值（避免 body 為 undefined 時爆炸）
       const topic   = req.body?.metadata?.topic;
@@ -51,7 +51,7 @@ router.post('/deletion-notify',express.json({ limit: '1mb' }), (req, res) => {
       const userName= data?.username ?? data?.userName;
 
       if (userName && userId) {
-        pushMessageToDeveloper(
+        console.log(
           `eBay 收到一筆 ${topic ?? "account event"}：\n` +
           `User Name: ${userName}\n` +
           `User ID: ${userId}`
