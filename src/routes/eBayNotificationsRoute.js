@@ -39,21 +39,33 @@ router.get('/deletion-notify', express.json({ limit: '1mb' }), (req, res) => {
 
 router.post('/deletion-notify', (req, res) => {
   res.status(200).send('OK');
-  try {
-    console.log("[Notification] headers:", req.headers);
-    console.log("[Notification] body:", req.body);
-    const userName = req.body.notification.data.username;
-    const userId = req.body.notification.data.userId;
-    const topic = req.body.metadata.topic;
-    if (userName && userId) {
-      pushMessageToDeveloper(`eBay 收到一筆 ${topic}：
-        User Name: ${userName}
-        User ID: ${userId}`)
+  setImmediate(() => {
+    try {
+      console.log("[Notification] headers:", req.headers);
+      console.log("[Notification] body:", req.body);
+
+      // 安全取值（避免 body 為 undefined 時爆炸）
+      const topic   = req.body?.metadata?.topic;
+      const data    = req.body?.notification?.data;
+      const userId  = data?.userId ?? data?.userID ?? data?.userid;
+      const userName= data?.username ?? data?.userName;
+
+      if (userName && userId) {
+        pushMessageToDeveloper(
+          `eBay 收到一筆 ${topic ?? "account event"}：\n` +
+          `User Name: ${userName}\n` +
+          `User ID: ${userId}`
+        );
+      } else {
+        console.warn("[Notification] 缺少 userName/userId。原始 data =", data);
+      }
+
+      // TODO：驗簽（x-ebay-signature）— 建議之後補
+    } catch (err) {
+      // 這裡只 log，不要回傳（因為前面已經 send 200）
+      console.error("POST /ebay/deletion-notify error:", err);
     }
-  } catch (err) {
-    console.error("POST /ebay/deletion-notify error:", err);
-    return res.status(500).json({ error: String(err?.message || err) });
-  }
+  });
 })
 
 export default router;
