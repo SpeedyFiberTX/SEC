@@ -16,7 +16,7 @@ const headers = {
 export default async function login() {
 
     try {
-        const response = await axios.post(`	https://oapi${ZONE}.ecount.com/OAPI/V2/OAPILogin`, {
+        const response = await axios.post(`https://oapi${ZONE}.ecount.com/OAPI/V2/OAPILogin`, {
             "COM_CODE": COM_CODE,
             "USER_ID": USER_ID,
             "API_CERT_KEY": API_CERT_KEY,
