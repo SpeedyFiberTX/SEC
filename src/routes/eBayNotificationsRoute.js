@@ -37,7 +37,7 @@ router.get('/deletion-notify', express.json({ limit: '1mb' }), (req, res) => {
 }
 );
 
-router.post('/deletion-notify', (req, res) => {
+router.post('/deletion-notify',express.json({ limit: '1mb' }), (req, res) => {
   res.status(200).send('OK');
   setImmediate(() => {
     try {
