@@ -8,7 +8,7 @@ const ebay_client_id = process.env.EBAY_CLIENT_ID;
 const ebay_client_secret = process.env.EBAY_CLIENT_SECRET;
 const ebay_ru_name = process.env.EBAY_RU_NAME;
 
-const endpoint = 'https://api.sandbox.ebay.com/identity/v1/oauth2/token';
+const endpoint = 'https://api.ebay.com/identity/v1/oauth2/token';
 
 
 const credentials = `${ebay_client_id}:${ebay_client_secret}`;

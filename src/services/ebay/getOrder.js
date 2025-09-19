@@ -1,7 +1,7 @@
 import axios from 'axios';
 import 'dotenv/config';
 
-const BASE = 'https://api.sandbox.ebay.com'; // 用 sandbox
+const BASE = 'https://api.ebay.com'; 
 const ORDERS_ENDPOINT = `${BASE}/sell/fulfillment/v1/order`;
 
 export default async function getOrder(accessToken) {
