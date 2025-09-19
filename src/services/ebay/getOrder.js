@@ -30,7 +30,3 @@ export default async function getOrder(accessToken) {
     throw err;
   }
 }
-
-// quick test
-const token = process.env.EBAY_TEST_TOKEN; // 必須是「Authorization Code Flow 的 User token」且含 sell.fulfillment scope
-getOrder(token).then(console.log).catch(()=>{});

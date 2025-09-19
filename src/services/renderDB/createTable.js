@@ -1,3 +1,4 @@
+// 用於建立資料表
 import pg from 'pg';
 import 'dotenv/config';
 

@@ -1,6 +1,5 @@
 import express from 'express';
 import dotenv from "dotenv";
-import axios from 'axios';
 import crypto from 'crypto';
 import exchangeCodeForToken from '../services/ebay/exchangeCodeForToken.js';
 import { saveEbayTokens } from '../services/renderDB/updateData.js';
@@ -16,7 +15,7 @@ const ebay_client_id = process.env.EBAY_CLIENT_ID;
 const ebay_scopes = process.env.EBAY_SCOPES;
 const ebay_ru_name = process.env.EBAY_RU_NAME;
 
-const endpoint = 'https://auth.sandbox.ebay.com/oauth2/authorize';
+const endpoint = 'https://auth.ebay.com/oauth2/authorize';
 
 const router = express.Router();
 
