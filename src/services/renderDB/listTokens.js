@@ -15,7 +15,7 @@ async function listTokens() {
       `SELECT id, app_user_id, ebay_user_id, state, access_token_expires_at, refresh_token_expires_at, created_at, updated_at
        FROM ebay_tokens
        ORDER BY id DESC
-       LIMIT 5;`
+       LIMIT 10;`
     );
 
     console.table(rows);

@@ -9,6 +9,7 @@ import AmazonOrder_notion from './routes/AmazonOrder_notion.js';
 import lineWebhookRouter from './routes/lineWebhookRouter.js';
 import ebayAuthRoute from './routes/ebayAuthRoute.js';
 import eBayNotificationsRoute from './routes/eBayNotificationsRoute.js'
+import ebayOrderRoute from './routes/ebayOrderRoute.js'
 
 dotenv.config();
 
@@ -41,6 +42,7 @@ app.use(express.json());
 app.use('/jobs/amazon-ecount', FBA_SyncRoute);      // FBA → Ecount
 app.use('/jobs/ecount-shopify', inventorySyncRoute); // Ecount → Shopify
 app.use('/jobs/amazon-order', AmazonOrder_notion); //Amazon order → notion
+app.use('/jobs/ebay-order', ebayOrderRoute); //eBay order → notion、Line
 app.use('/ebay', ebayAuthRoute);
 
 app.listen(PORT, () => {

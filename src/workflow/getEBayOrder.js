@@ -10,7 +10,7 @@ export default async function getEBayOrder(state) {
     const accessToken = await getValidAccessTokenByState(state);
     const response = await getOrder(accessToken);
 
-    console.log(response);
+    return response;
     
   } catch (err) {
     console.error("❌ eBay 訂單取得錯誤：", err?.response?.data || err.message);
