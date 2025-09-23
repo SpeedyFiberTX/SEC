@@ -214,7 +214,7 @@ export default async function handleEBayOrder() {
             }
 
             // 送出 Line 訊息
-            await pushMessageToMe(`今天 eBay 共有 ${orderList.length}筆新訂單進來囉：\n${lineMessage.join('\n---\n')}`)
+            await pushMessageToMe(`過去 1 小時 eBay 共有 ${orderList.length}筆新訂單進來囉：\n${lineMessage.join('\n---\n')}`)
 
             // 送出到 notion
             console.log("📝 開始新增資料到平台訂單彙整...");
@@ -255,3 +255,5 @@ export default async function handleEBayOrder() {
         console.error("❌ eBay 訂單處理錯誤：", err?.message || err);
     }
 }
+
+handleEBayOrder()
