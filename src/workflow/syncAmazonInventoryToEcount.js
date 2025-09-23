@@ -139,5 +139,3 @@ export default async function syncAmazonInventoryToEcount() {
         console.error("同步庫存失敗", err.response?.data || err.message);
     }
 }
-
-syncAmazonInventoryToEcount()
