@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import cron from 'node-cron';
 import express from 'express';
-import syncAmazonShopifyEcountInventory from '../workflow/syncAmazonShopifyEcountInventory';
+import syncAmazonShopifyEcountInventory from '../workflow/syncAmazonShopifyEcountInventory.js';
 
 dotenv.config();
 
