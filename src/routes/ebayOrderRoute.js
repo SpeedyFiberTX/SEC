@@ -31,9 +31,9 @@ router.post('/sync', async (req, res) => {
   }
 });
 
-// 🕒 每天早上 7 點 15 分自動執行（台灣時間）
+// 🕒 每小時 30 分自動執行（台灣時間）
 cron.schedule(
-  '15 7 * * *',
+  '30 * * * *',
   async () => {
     if (isRunning) {
       console.warn('⏳ 上一輪同步尚未結束，略過本次排程。');

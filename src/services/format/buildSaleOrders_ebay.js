@@ -6,7 +6,7 @@ export default async function buildSaleOrders_ebay(order, createdDate, shippingA
 
         // 要return的資料
         const SaleOrderList = [];
-        let WH_CD = "200";
+        let WH_CD = "100";
         const perItemCanTW = [];      // 每個品項是否可由 TW 滿足
         const perItemCanFBA = [];     // 每個品項是否可由 FBA 滿足
 
@@ -237,7 +237,7 @@ export default async function buildSaleOrders_ebay(order, createdDate, shippingA
                 WH_CD = "100";
             } else if (allFBA) {
                 WH_CD = "300";
-            } // 否則維持 "200"
+            } // 否則維持 "100"
         }
 
         // 把 WH_CD 回填到每一列

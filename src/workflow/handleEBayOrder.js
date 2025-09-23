@@ -25,42 +25,6 @@ const EBAY_US_STATE = process.env.EBAY_US_STATE;
 export default async function handleEBayOrder() {
 
     try {
-        // 登入 Ecount 
-        const SESSION_ID = await login();
-        if (!SESSION_ID) throw new Error('SESSION_ID 為空');
-        // 取得Ecount全產品資料
-        const EcountProductList = await getItems(SESSION_ID);
-        const EcountInventoryFBA = await fetchInventoryFBA(SESSION_ID); //取得 Ecount FBA 產品庫存數量
-        const EcountInventoryTW = await fetchInventoryTW(SESSION_ID); //取得 Ecount TW 產品庫存數量
-
-        const FBAinvByProdCd = new Map(
-            (EcountInventoryFBA || []).map(inv => [String(inv.PROD_CD), inv])
-        );
-        const TWinvByProdCd = new Map(
-            (EcountInventoryTW || []).map(inv => [String(inv.PROD_CD), inv])
-        );
-        const productsByProdCd = new Map(
-            (EcountProductList || []).map(p => [String(p.PROD_CD), p])
-        );
-
-        // 組合 Ecount 產品SKU+庫存數量（O(n)）
-        const merged = [];
-        for (const [prodCd, p] of productsByProdCd.entries()) {
-            const fbaInv = FBAinvByProdCd.get(prodCd);
-            const twInv = TWinvByProdCd.get(prodCd);
-
-            const fbaQty = Number(fbaInv?.BAL_QTY ?? 0) || 0;
-            const twQty = Number(twInv?.BAL_QTY ?? 0) || 0;
-
-            merged.push({
-                PROD_CD: prodCd,
-                SIZE_DES: p?.SIZE_DES ?? null,
-                FBA_BAL_QTY: fbaQty,
-                TW_BAL_QTY: twQty,
-                TOTAL_BAL_QTY: fbaQty + twQty,
-            });
-        }
-
         // 取得兩個帳號的訂單
         const tw_res = await getEBayOrder(EBAY_TW_STATE);
         const us_res = await getEBayOrder(EBAY_US_STATE);
@@ -70,10 +34,46 @@ export default async function handleEBayOrder() {
             .filter(arr => Array.isArray(arr) && arr.length > 0)
             .flat(); // 這裡會把兩個非空的訂單陣列合併成一個
 
-
         // 所有訂單處理
         if (orders.length > 0) {
 
+            // 有訂單才登入 Ecount 
+            const SESSION_ID = await login();
+            if (!SESSION_ID) throw new Error('SESSION_ID 為空');
+            // 取得Ecount全產品資料
+            const EcountProductList = await getItems(SESSION_ID);
+            const EcountInventoryFBA = await fetchInventoryFBA(SESSION_ID); //取得 Ecount FBA 產品庫存數量
+            const EcountInventoryTW = await fetchInventoryTW(SESSION_ID); //取得 Ecount TW 產品庫存數量
+
+            const FBAinvByProdCd = new Map(
+                (EcountInventoryFBA || []).map(inv => [String(inv.PROD_CD), inv])
+            );
+            const TWinvByProdCd = new Map(
+                (EcountInventoryTW || []).map(inv => [String(inv.PROD_CD), inv])
+            );
+            const productsByProdCd = new Map(
+                (EcountProductList || []).map(p => [String(p.PROD_CD), p])
+            );
+
+            // 組合 Ecount 產品SKU+庫存數量（O(n)）
+            const merged = [];
+            for (const [prodCd, p] of productsByProdCd.entries()) {
+                const fbaInv = FBAinvByProdCd.get(prodCd);
+                const twInv = TWinvByProdCd.get(prodCd);
+
+                const fbaQty = Number(fbaInv?.BAL_QTY ?? 0) || 0;
+                const twQty = Number(twInv?.BAL_QTY ?? 0) || 0;
+
+                merged.push({
+                    PROD_CD: prodCd,
+                    SIZE_DES: p?.SIZE_DES ?? null,
+                    FBA_BAL_QTY: fbaQty,
+                    TW_BAL_QTY: twQty,
+                    TOTAL_BAL_QTY: fbaQty + twQty,
+                });
+            }
+
+            // 要準備送去各個平台的資料
             const orderList = [];
             const orderList_orderDatabase = [];
             const lineMessage = [];
@@ -206,8 +206,8 @@ export default async function handleEBayOrder() {
                 } catch (err) {
                     console.error(`處理訂單 ${order?.orderId ?? '未知'} 失敗:`, err.message);
                     try {
-                      await pushMessageToDeveloper(`eBay 同步訂單：${order?.orderId ?? '未知'} 失敗`)
-                    }catch(error){
+                        await pushMessageToDeveloper(`eBay 同步訂單：${order?.orderId ?? '未知'} 失敗`)
+                    } catch (error) {
                         console.error(`傳送訊息失敗`);
                     }
                 }
@@ -240,14 +240,14 @@ export default async function handleEBayOrder() {
 
             if (filteredSaleOrders.length > 0) {
                 console.log(JSON.stringify({ "SaleOrderList": filteredSaleOrders }))
-                await saleOrder(SESSION_ID, { "SaleOrderList": filteredSaleOrders[0] });
+                await saleOrder(SESSION_ID, { "SaleOrderList": filteredSaleOrders });
             } else {
                 console.log('沒有訂單可建立，可能出錯了');
             }
 
         } else {
-            console.log("今天沒有訂單");
-            await pushMessageToMe(`今天 eBay 沒有新訂單`);
+            console.log("過去 1 小時沒有訂單");
+            // await pushMessageToMe(`過去 1 小時 eBay 沒有新訂單`);
         }
 
 
