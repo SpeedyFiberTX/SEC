@@ -48,8 +48,8 @@ export default async function runGetVariantsID(sku) {
     const Variants = response.productVariants.nodes;
     if (Variants.length > 0) {
       const variantsInput = Variants.map(item => ({ inventoryItemId: item.inventoryItem.id, locationId: LOCATION_Id }));
-      console.log(`Shopify 查詢 Variant成功 SKU：${sku}`)
-      console.log(variantsInput[0]);
+      // console.log(`Shopify 查詢 Variant成功 SKU：${sku}`)
+      // console.log(variantsInput[0]);
       return variantsInput[0];
     } else {
       console.log(`Shopify 無此 Variant SKU：${sku}`)
