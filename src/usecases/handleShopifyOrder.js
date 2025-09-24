@@ -340,7 +340,7 @@ async function buildEcountProperties(SESSION_ID, ex) {
             "UPLOAD_SER_NO": String(ex.number ?? ex.id),
             "CUST": "PF002",
             "CUST_DES": "Shopify",
-            "EMP_CD": "10007",
+            "EMP_CD": "10019",
             "WH_CD": ex.singleWarehouseId === 81795907814 ? "100" : "200",
             "IO_TYPE": "13",//交易類型 免稅
             "EXCHANGE_TYPE": "00002",
