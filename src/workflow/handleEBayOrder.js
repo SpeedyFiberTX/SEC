@@ -127,7 +127,11 @@ export default async function handleEBayOrder() {
                         const twQty = Number(productDetail?.TW_BAL_QTY ?? 0);
 
                         // 每個 SKU 的 TW/FBA 庫存檢查列
-                        invCheckLines.push(`• ${sku} — TW:${twQty} | FBA:${fbaQty}（需:${qty}）`);
+                        if (fbaQty !== 0 && twQty !== 0) {
+                            invCheckLines.push(`• ${sku} — TW:${twQty} | FBA:${fbaQty}（需:${qty}）`);
+                        } else {
+                            invCheckLines.push(`• ${sku} — TW:${twQty} | FBA:${fbaQty}（需:${qty}）\n 請換一個 SKU 再嘗試查詢`);
+                        }
 
 
                         // 單價
@@ -140,7 +144,7 @@ export default async function handleEBayOrder() {
                             saleOrders.push({
                                 "BulkDatas": {
                                     "IO_DATE": createdDate[1],
-                                    "UPLOAD_SER_NO":String(order.orderId).slice(-4),
+                                    "UPLOAD_SER_NO": String(order.orderId).slice(-4),
                                     "CUST": "PF003",
                                     "CUST_DES": "ebay",
                                     "EMP_CD": "10019",
@@ -427,8 +431,8 @@ export default async function handleEBayOrder() {
             }
 
             // 送出 Line 訊息
-            await pushMessageToMe(`過去 1 小時 eBay 共有 ${orderList.length}筆新訂單進來囉：\n${lineMessage.join('\n---\n')}`)
-            // await pushMessageToDeveloper(`過去 1 小時 eBay 共有 ${orderList.length}筆新訂單進來囉：\n${lineMessage.join('\n---\n')}`)
+            // await pushMessageToMe(`過去 1 小時 eBay 共有 ${orderList.length}筆新訂單進來囉：\n${lineMessage.join('\n---\n')}`)
+            await pushMessageToDeveloper(`過去 1 小時 eBay 共有 ${orderList.length}筆新訂單進來囉：\n${lineMessage.join('\n---\n')}`)
 
             // 送出到 notion
             console.log("📝 開始新增資料到平台訂單彙整...");
@@ -443,7 +447,7 @@ export default async function handleEBayOrder() {
                 console.error("❌ 新增資料到 notion 平台訂單彙整 出錯了：", err?.message || err);
             }
 
-            console.log("📝 開始新增資料到訂單...");
+            // console.log("📝 開始新增資料到訂單...");
             try {
                 for (let i = 0; i < orderList_orderDatabase.length; i++) {
                     const res = await addNotionPageToOrderDatabase(orderList_orderDatabase[i]);
@@ -467,7 +471,7 @@ export default async function handleEBayOrder() {
             } catch (error) {
                 console.error("❌ 建立 Ecount 訂貨單出錯了：", err?.message || err);
             }
-            
+
 
         } else {
             console.log("過去 1 小時沒有訂單");
@@ -479,3 +483,5 @@ export default async function handleEBayOrder() {
         console.error("❌ eBay 訂單處理錯誤：", err?.message || err);
     }
 }
+
+ handleEBayOrder()

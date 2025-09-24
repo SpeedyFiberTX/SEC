@@ -7,7 +7,7 @@ const ORDERS_ENDPOINT = `${BASE}/sell/fulfillment/v1/order`;
 export default async function getOrder(accessToken) {
   try {
     // 算出 24 小時前的時間（UTC）
-    const isoStart = new Date(Date.now() - 1*60*60*1000).toISOString();
+    const isoStart = new Date(Date.now() - 2*60*60*1000).toISOString();
 
 
     const { data } = await axios.get(ORDERS_ENDPOINT, {
