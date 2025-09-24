@@ -25,14 +25,7 @@ export default async function saleOrder(SESSION_ID, inputValue) {
     } else {
       console.log("❌ 訂貨單建立失敗");
       console.log("錯誤明細：");
-      data.Data.ResultDetails.forEach((detail, i) => {
-        console.log(`Line ${i}:`, detail.Data.TotalError);
-        if (detail.Data.Errors?.length > 0) {
-          detail.Data.Errors.forEach((err) => {
-            console.log(` - 欄位 ${err.ColCd}: ${err.Message}`);
-          });
-        }
-      });
+      console.log(JSON.stringify(data.Data.ResultDetails));
     }
     }else{
     console.log(data.Error)

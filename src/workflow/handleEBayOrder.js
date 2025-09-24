@@ -6,7 +6,6 @@ import addNotionPageToDatabase from "../services/notion/add-page-to-database.js"
 import addNotionPageToOrderDatabase from "../services/notion/add-page-to-order-database.js";
 // 工具
 import formatDateYYYYMMDD from "../services/format/formatDateYYYYMMDD.js";
-import buildSaleOrders_ebay from '../services/format/buildSaleOrders_ebay.js';
 // Line
 import pushMessageToMe from '../services/line/pushMessage.js';
 import pushMessageToDeveloper from '../services/line/pushMessageToDeveloper.js';
@@ -77,21 +76,13 @@ export default async function handleEBayOrder() {
             const orderList = [];
             const orderList_orderDatabase = [];
             const lineMessage = [];
-            const saleOrders = [];
+            const SaleOrderList = [];
 
             // 個別訂單處理
             for (const order of orders) {
                 try {
                     const createdDate = formatDateYYYYMMDD(order.creationDate);
                     const shippingDetail = order.fulfillmentStartInstructions?.[0]?.shippingStep?.shipTo;
-                    const items = order.lineItems ?? [];
-                    const itemText = items?.length
-                        ? items.map(it => `• ${it.title} 〔SKU: ${it.sku ?? "-"}〕* ${it.quantity}`).join("\n")
-                        : "";
-                    const skuText = items?.length
-                        ? items.map(it => `• ${it.sku ?? ""} * ${it.quantity}`).join("\n")
-                        : "";
-
                     const shippingAddressText = shippingDetail
                         ? [
                             shippingDetail.fullName,
@@ -110,19 +101,239 @@ export default async function handleEBayOrder() {
                         order.totalFeeBasisAmount?.value ??
                         "0";
 
-                    // 送去組裝資料 Ecount 資料
-                    const { SaleOrderList, WH_CD } = await buildSaleOrders_ebay(SESSION_ID, order, createdDate, shippingAddressText, merged);
 
-                    let wh_select = "待判斷"
-                    if (WH_CD === "100") {
-                        wh_select = "台灣"
-                    } else if (WH_CD === "300") {
-                        wh_select = "FBA"
-                    } else if (WH_CD === "200") {
-                        wh_select = "深圳"
-                    }
+                    // 先準備要累積的文字列（改為在 forEach 裡逐筆 push）
+                    const items = order.lineItems ?? [];
+                    const itemLines = [];
+                    const skuLines = [];
+                    const invCheckLines = [];
+                    const saleOrders = [];
 
-                    saleOrders.push(SaleOrderList);
+                    // 個別品項處理
+                    items?.forEach(item => {
+
+                        const sku = String(item?.sku ?? "");
+                        const title = String(item?.title ?? "");
+                        const qty = Number(item?.quantity ?? 0);
+
+                        // 累積顯示字串
+                        itemLines.push(`• ${title} 〔SKU: ${sku || "-"}〕* ${qty}`);
+                        skuLines.push(`• ${sku} * ${qty}`);
+
+                        // 以SKU查詢品項編碼
+                        const productDetail = (merged ?? []).find(p => p?.SIZE_DES === sku);
+
+                        const fbaQty = Number(productDetail?.FBA_BAL_QTY ?? 0);
+                        const twQty = Number(productDetail?.TW_BAL_QTY ?? 0);
+
+                        // 每個 SKU 的 TW/FBA 庫存檢查列
+                        invCheckLines.push(`• ${sku} — TW:${twQty} | FBA:${fbaQty}（需:${qty}）`);
+
+
+                        // 單價
+                        const unitPrice = item.quantity
+                            ? Number(item.total?.value ?? 0) / Number(item.quantity)
+                            : 0;
+
+                        // 假如品項存在
+                        if (productDetail) {
+                            saleOrders.push({
+                                "BulkDatas": {
+                                    "IO_DATE": createdDate[1],
+                                    "UPLOAD_SER_NO":String(order.orderId).slice(-4),
+                                    "CUST": "PF003",
+                                    "CUST_DES": "ebay",
+                                    "EMP_CD": "10019",
+                                    "WH_CD": "100",
+                                    "IO_TYPE": "13",//交易類型 免稅
+                                    "EXCHANGE_TYPE": "00002",
+                                    "EXCHANGE_RATE": "32",
+                                    "PJT_CD": "",
+                                    "DOC_NO": "",
+                                    "TTL_CTT": "",
+                                    "REF_DES": "",
+                                    "COLL_TERM": "",
+                                    "AGREE_TERM": "",
+                                    "TIME_DATE": "",
+                                    "REMARKS_WIN": "",
+                                    "U_MEMO1": order.orderId,
+                                    "U_MEMO2": order.buyer?.buyerRegistrationAddress?.fullName ?? "未知",
+                                    "U_MEMO3": "",
+                                    "U_MEMO4": "",
+                                    "U_MEMO5": "",
+                                    "ADD_TXT_01_T": shippingAddressText,
+                                    "ADD_TXT_02_T": "",
+                                    "ADD_TXT_03_T": "",
+                                    "ADD_TXT_04_T": "",
+                                    "ADD_TXT_05_T": "",
+                                    "ADD_TXT_06_T": "",
+                                    "ADD_TXT_07_T": "",
+                                    "ADD_TXT_08_T": "",
+                                    "ADD_TXT_09_T": "",
+                                    "ADD_TXT_10_T": "",
+                                    "ADD_NUM_01_T": "",
+                                    "ADD_NUM_02_T": "",
+                                    "ADD_NUM_03_T": "",
+                                    "ADD_NUM_04_T": "",
+                                    "ADD_NUM_05_T": "",
+                                    "ADD_CD_01_T": "",
+                                    "ADD_CD_02_T": "",
+                                    "ADD_CD_03_T": "",
+                                    "ADD_DATE_01_T": "",
+                                    "ADD_DATE_02_T": "",
+                                    "ADD_DATE_03_T": "",
+                                    "U_TXT1": "",
+                                    "ADD_LTXT_01_T": "",
+                                    "ADD_LTXT_02_T": "",
+                                    "ADD_LTXT_03_T": "",
+                                    "PROD_CD": productDetail.PROD_CD, //品項編碼
+                                    "PROD_DES": "",
+                                    "SIZE_DES": "",
+                                    "UQTY": "",
+                                    "QTY": qty,
+                                    "PRICE": unitPrice, //單價
+                                    "USER_PRICE_VAT": "",
+                                    "SUPPLY_AMT": "",
+                                    "SUPPLY_AMT_F": "",
+                                    "VAT_AMT": "",
+                                    "ITEM_TIME_DATE": "",
+                                    "REMARKS": "",
+                                    "ITEM_CD": "",
+                                    "P_REMARKS1": "",
+                                    "P_REMARKS2": "",
+                                    "P_REMARKS3": "",
+                                    "ADD_TXT_01": "",
+                                    "ADD_TXT_02": "",
+                                    "ADD_TXT_03": "",
+                                    "ADD_TXT_04": "",
+                                    "ADD_TXT_05": "",
+                                    "ADD_TXT_06": "",
+                                    "REL_DATE": "",
+                                    "REL_NO": "",
+                                    "P_AMT1": "",
+                                    "P_AMT2": "",
+                                    "ADD_NUM_01": "",
+                                    "ADD_NUM_02": "",
+                                    "ADD_NUM_03": "",
+                                    "ADD_NUM_04": "",
+                                    "ADD_NUM_05": "",
+                                    "ADD_CD_01": "",
+                                    "ADD_CD_02": "",
+                                    "ADD_CD_03": "",
+                                    "ADD_CD_NM_01": "",
+                                    "ADD_CD_NM_02": "",
+                                    "ADD_CD_NM_03": "",
+                                    "ADD_CDNM_01": "",
+                                    "ADD_CDNM_02": "",
+                                    "ADD_CDNM_03": "",
+                                    "ADD_DATE_01": "",
+                                    "ADD_DATE_02": "",
+                                    "ADD_DATE_03": ""
+                                }
+                            })
+                        } else {
+                            saleOrders.push({
+                                "BulkDatas": {
+                                    "IO_DATE": createdDate[1],
+                                    "UPLOAD_SER_NO": String(order.orderId).slice(-4),
+                                    "CUST": "PF003",
+                                    "CUST_DES": "ebay",
+                                    "EMP_CD": "10019",
+                                    "WH_CD": "100",
+                                    "IO_TYPE": "13",//交易類型 免稅
+                                    "EXCHANGE_TYPE": "00002",
+                                    "EXCHANGE_RATE": "32",
+                                    "PJT_CD": "",
+                                    "DOC_NO": "",
+                                    "TTL_CTT": "",
+                                    "REF_DES": "",
+                                    "COLL_TERM": "",
+                                    "AGREE_TERM": "",
+                                    "TIME_DATE": "",
+                                    "REMARKS_WIN": "",
+                                    "U_MEMO1": order.orderId,
+                                    "U_MEMO2": order.buyer?.buyerRegistrationAddress?.fullName ?? "未知",
+                                    "U_MEMO3": "",
+                                    "U_MEMO4": "",
+                                    "U_MEMO5": "",
+                                    "ADD_TXT_01_T": shippingAddressText,
+                                    "ADD_TXT_02_T": "",
+                                    "ADD_TXT_03_T": "",
+                                    "ADD_TXT_04_T": "",
+                                    "ADD_TXT_05_T": "",
+                                    "ADD_TXT_06_T": "",
+                                    "ADD_TXT_07_T": "",
+                                    "ADD_TXT_08_T": "",
+                                    "ADD_TXT_09_T": "",
+                                    "ADD_TXT_10_T": "",
+                                    "ADD_NUM_01_T": "",
+                                    "ADD_NUM_02_T": "",
+                                    "ADD_NUM_03_T": "",
+                                    "ADD_NUM_04_T": "",
+                                    "ADD_NUM_05_T": "",
+                                    "ADD_CD_01_T": "",
+                                    "ADD_CD_02_T": "",
+                                    "ADD_CD_03_T": "",
+                                    "ADD_DATE_01_T": "",
+                                    "ADD_DATE_02_T": "",
+                                    "ADD_DATE_03_T": "",
+                                    "U_TXT1": "",
+                                    "ADD_LTXT_01_T": "",
+                                    "ADD_LTXT_02_T": "",
+                                    "ADD_LTXT_03_T": "",
+                                    "PROD_CD": "TEST", //品項編碼
+                                    "PROD_DES": "",
+                                    "SIZE_DES": "",
+                                    "UQTY": "",
+                                    "QTY": qty,
+                                    "PRICE": unitPrice, //單價
+                                    "USER_PRICE_VAT": "",
+                                    "SUPPLY_AMT": "",
+                                    "SUPPLY_AMT_F": "",
+                                    "VAT_AMT": "",
+                                    "ITEM_TIME_DATE": "",
+                                    "REMARKS": "",
+                                    "ITEM_CD": "",
+                                    "P_REMARKS1": "",
+                                    "P_REMARKS2": "",
+                                    "P_REMARKS3": "",
+                                    "ADD_TXT_01": "",
+                                    "ADD_TXT_02": "",
+                                    "ADD_TXT_03": "",
+                                    "ADD_TXT_04": "",
+                                    "ADD_TXT_05": "",
+                                    "ADD_TXT_06": "",
+                                    "REL_DATE": "",
+                                    "REL_NO": "",
+                                    "P_AMT1": "",
+                                    "P_AMT2": "",
+                                    "ADD_NUM_01": "",
+                                    "ADD_NUM_02": "",
+                                    "ADD_NUM_03": "",
+                                    "ADD_NUM_04": "",
+                                    "ADD_NUM_05": "",
+                                    "ADD_CD_01": "",
+                                    "ADD_CD_02": "",
+                                    "ADD_CD_03": "",
+                                    "ADD_CD_NM_01": "",
+                                    "ADD_CD_NM_02": "",
+                                    "ADD_CD_NM_03": "",
+                                    "ADD_CDNM_01": "",
+                                    "ADD_CDNM_02": "",
+                                    "ADD_CDNM_03": "",
+                                    "ADD_DATE_01": "",
+                                    "ADD_DATE_02": "",
+                                    "ADD_DATE_03": ""
+                                }
+                            })
+                        }
+
+                    });
+
+                    const itemText = itemLines.join("\n");
+                    const skuText = skuLines.join("\n");
+                    const invCheckText = invCheckLines.join("\n");
+
                     // 送 notion 平台訂單彙整
                     orderList.push({
                         "訂單編號": {
@@ -131,7 +342,7 @@ export default async function handleEBayOrder() {
                         },
                         "出貨倉庫": {
                             type: "select",
-                            select: { name: wh_select ? wh_select : "待判斷" }, // 必須與資料庫選項同名
+                            select: { name: "待判斷" }, // 必須與資料庫選項同名
                         },
                         "平台": {
                             type: "select",
@@ -200,8 +411,10 @@ export default async function handleEBayOrder() {
                     })
                     // 送 line
                     lineMessage.push(
-                        ` 🎉售出帳號：${order.sellerId}\n🔥訂單編號：${order.orderId}\n🧑‍💼 顧客：${order.buyer?.buyerRegistrationAddress?.fullName ?? ""}\n💵 總金額：${Number(totalValue)}\n📅 日期：${createdDate[0]}\n📦 商品明細：\n${itemText}\n🚚 建議出貨倉庫：${wh_select}`
+                        ` 🎉售出帳號：${order.sellerId}\n🔥訂單編號：${order.orderId}\n🧑‍💼 顧客：${order.buyer?.buyerRegistrationAddress?.fullName ?? ""}\n💵 總金額：${Number(totalValue)}\n📅 日期：${createdDate[0]}\n📦 商品明細：\n${itemText}\n🚚 庫存檢查：\n${invCheckText}`
                     )
+                    // 送Ecount
+                    SaleOrderList.push(...saleOrders);
 
                 } catch (err) {
                     console.error(`處理訂單 ${order?.orderId ?? '未知'} 失敗:`, err.message);
@@ -215,35 +428,46 @@ export default async function handleEBayOrder() {
 
             // 送出 Line 訊息
             await pushMessageToMe(`過去 1 小時 eBay 共有 ${orderList.length}筆新訂單進來囉：\n${lineMessage.join('\n---\n')}`)
+            // await pushMessageToDeveloper(`過去 1 小時 eBay 共有 ${orderList.length}筆新訂單進來囉：\n${lineMessage.join('\n---\n')}`)
 
             // 送出到 notion
             console.log("📝 開始新增資料到平台訂單彙整...");
-            // console.log(orderList);
-            for (let i = 0; i < orderList.length; i++) {
-                const res = await addNotionPageToDatabase(orderList[i]);
-                if (res) {
-                    console.log('✅ 已建立 notion 資料')
+            try {
+                for (let i = 0; i < orderList.length; i++) {
+                    const res = await addNotionPageToDatabase(orderList[i]);
+                    if (res) {
+                        console.log('✅ 已建立 notion 資料')
+                    }
                 }
+            } catch (error) {
+                console.error("❌ 新增資料到 notion 平台訂單彙整 出錯了：", err?.message || err);
             }
 
             console.log("📝 開始新增資料到訂單...");
-            for (let i = 0; i < orderList_orderDatabase.length; i++) {
-                const res = await addNotionPageToOrderDatabase(orderList_orderDatabase[i]);
-                if (res) {
-                    console.log('✅ 已建立 notion 資料')
+            try {
+                for (let i = 0; i < orderList_orderDatabase.length; i++) {
+                    const res = await addNotionPageToOrderDatabase(orderList_orderDatabase[i]);
+                    if (res) {
+                        console.log('✅ 已建立 notion 資料')
+                    }
                 }
+            } catch (error) {
+                console.error("❌ 新增資料到 notion 訂單 出錯了：", err?.message || err);
             }
-            // 送出到 Ecount
-            const filteredSaleOrders = saleOrders
-                .filter(order => Array.isArray(order) && order.length > 0)
-                .flat();
 
-            if (filteredSaleOrders.length > 0) {
-                console.log(JSON.stringify({ "SaleOrderList": filteredSaleOrders }))
-                await saleOrder(SESSION_ID, { "SaleOrderList": filteredSaleOrders });
-            } else {
-                console.log('沒有訂單可建立，可能出錯了');
+            // 送出到 Ecount
+            console.log("📝 開始建立 Ecount 訂貨單...");
+            console.log(JSON.stringify({ "SaleOrderList": SaleOrderList }));
+            try {
+                if (SaleOrderList.length > 0) {
+                    await saleOrder(SESSION_ID, { "SaleOrderList": SaleOrderList });
+                } else {
+                    console.log('沒有訂單可建立，可能出錯了');
+                }
+            } catch (error) {
+                console.error("❌ 建立 Ecount 訂貨單出錯了：", err?.message || err);
             }
+            
 
         } else {
             console.log("過去 1 小時沒有訂單");
@@ -255,5 +479,3 @@ export default async function handleEBayOrder() {
         console.error("❌ eBay 訂單處理錯誤：", err?.message || err);
     }
 }
-
-handleEBayOrder()
