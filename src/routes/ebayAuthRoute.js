@@ -2,7 +2,7 @@ import express from 'express';
 import dotenv from "dotenv";
 import crypto from 'crypto';
 import exchangeCodeForToken from '../services/ebay/exchangeCodeForToken.js';
-import { saveEbayTokens } from '../services/renderDB/updateData.js';
+import saveEbayTokens from '../services/supabase/saveEbayTokens.js';
 
 dotenv.config();
 

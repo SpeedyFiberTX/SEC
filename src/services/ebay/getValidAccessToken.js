@@ -1,5 +1,6 @@
 import "dotenv/config";
-import { getTokenRowByState, updateTokensById } from "../renderDB/tokenRepo.js";
+import getTokenRowByState from "../supabase/getTokenRowByState.js";
+import updateTokensById from "../supabase/updateTokensById.js";
 import { refreshAccessToken } from "./refreshAccessToken.js";
 
 const SCOPES = process.env.EBAY_SCOPES;
