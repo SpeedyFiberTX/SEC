@@ -14,7 +14,7 @@ export async function getValidAccessTokenByState(state) {
     if (!row) throw new Error("No token row for this state");
 
     const now = Date.now();
-
+    
     // 先看 access token 是否尚未過期（加上緩衝）
     const accessExp = new Date(row.access_token_expires_at).getTime();
     if (Number.isFinite(accessExp) && now < accessExp - SKEW_MS) {
