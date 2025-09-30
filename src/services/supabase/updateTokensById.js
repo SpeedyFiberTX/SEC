@@ -28,7 +28,7 @@ export default async function updateTokensById(id, {
       return null;
     }
 
-    console.log("✅ 更新完成：", data);
+    console.log("✅ 更新完成");
     return data;
   } catch (err) {
     console.error("❌ JS 錯誤：", err?.message || err);

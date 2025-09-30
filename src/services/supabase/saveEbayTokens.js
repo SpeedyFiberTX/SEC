@@ -48,6 +48,6 @@ export default async function saveEbayTokens(tokenResponse, state, appUserId = n
     throw error
   }
 
-  console.log('✅ 插入完成：', data)
+  console.log('✅ 已儲存使用者資料')
   return data
 }

@@ -24,7 +24,8 @@ export default async function getTokenRowByState(state) {
     if (error) {
       console.error("❌ Supabase 查詢錯誤：", error);
     } else {
-      console.log("✅ 查詢結果：", data);
+      console.log("✅ 查詢成功");
+      return data;
     }
   } catch (err) {
     console.error("❌ JS 錯誤：", err?.message || err);
