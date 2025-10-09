@@ -1,5 +1,5 @@
 import cron from "node-cron";
-import callGPT from "../services/GPT/openai.js"; 
+import callGPT from "../workflow/callGPT.js"; 
 
 // 台灣時區為 UTC+8
 const timeZone = "Asia/Taipei";
