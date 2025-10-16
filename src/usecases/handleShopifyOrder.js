@@ -212,6 +212,10 @@ function buildNotionOrderProperties(ex) {
       type: "rich_text",
       rich_text: [{ type: "text", text: { content: skuText } }],
     },
+     "Notes": {
+      type: "rich_text",
+      rich_text: [{ type: "text", text: { content: ex.title } }],
+    }
   };
 }
 

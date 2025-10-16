@@ -412,6 +412,10 @@ export default async function handleEBayOrder() {
                             type: "rich_text",
                             rich_text: [{ type: "text", text: { content: skuText } }],
                         },
+                        "Notes": {
+                            type: "rich_text",
+                            rich_text: [{ type: "text", text: { content: order.orderId } }],
+                        }
                     })
                     // 送 line
                     lineMessage.push(
