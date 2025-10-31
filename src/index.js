@@ -11,7 +11,7 @@ import lineWebhookRouter from './routes/lineWebhookRouter.js';
 import ebayAuthRoute from './routes/ebayAuthRoute.js';
 import eBayNotificationsRoute from './routes/eBayNotificationsRoute.js'
 import ebayOrderRoute from './routes/ebayOrderRoute.js'
-import './routes/callGPTtime.js';
+// import './routes/callGPTtime.js';
 
 dotenv.config();
 
