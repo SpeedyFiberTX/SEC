@@ -1,7 +1,7 @@
 // routes/shopifyWebhookRoute.js
 import { Router } from 'express';
 import crypto from 'crypto';
-import handleShopifyOrder from '../usecases/handleShopifyOrder.js';
+import handleShopifyOrder from '../workflow/handleShopifyOrder.js';
 
 const router = Router();
 

@@ -6,9 +6,6 @@ import saveEbayTokens from '../services/supabase/saveEbayTokens.js';
 
 dotenv.config();
 
-// 還不確定要幹嘛用的
-// const ebay_env = process.env.EBAY_ENV;
-
 // APP資訊
 const ebay_client_id = process.env.EBAY_CLIENT_ID;
 // const ebay_client_secret = process.env.EBAY_CLIENT_SECRET;

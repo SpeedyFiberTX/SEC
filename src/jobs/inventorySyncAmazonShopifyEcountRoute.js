@@ -1,11 +1,9 @@
 import dotenv from 'dotenv';
 import cron from 'node-cron';
-import express from 'express';
 import syncAmazonShopifyEcountInventory from '../workflow/syncAmazonShopifyEcountInventory.js';
 
 dotenv.config();
 
-const router = express.Router();
 let isRunning = false; // 🔒 防止重疊執行（手動與排程都會檢查）
 
 // 🕒 每小時第 03 分自動執行（台灣時間）
@@ -32,5 +30,3 @@ cron.schedule(
   },
   { timezone: 'Asia/Taipei' }
 );
-
-export default router;

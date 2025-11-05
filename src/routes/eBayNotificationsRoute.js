@@ -8,11 +8,6 @@ const router = express.Router();
 const VERIFICATION_TOKEN = process.env.EBAY_VERIFICATION_TOKEN;
 const ENDPOINT = "https://sec-6pep.onrender.com/ebay/notifications/deletion-notify";
 
-// GET ping：用來確認 404 問題
-// router.get('/', (req, res) => {
-//   res.status(200).send('eBay sell notifications endpoint alive');
-// });
-
 // JSON webhook：新版 Sell Notification API
 router.post('/',
   express.json({ limit: '1mb' }),

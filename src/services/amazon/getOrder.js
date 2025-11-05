@@ -31,5 +31,3 @@ export default async function getOrders(access_token) {
         console.error("Error calling SP-API:", err.response?.data || err.message);
     }
 }
-
-getOrders();

@@ -2,16 +2,18 @@
 import dotenv from 'dotenv';
 import express from 'express';
 
-// import inventorySyncRoute from './routes/inventorySyncRoute.js';     // Ecount → Shopify
-// import FBA_SyncRoute from './routes/FBA_SyncRoute.js';               // FBA → Ecount
-import inventorySyncAmazonShopifyEcountRoute from './routes/inventorySyncAmazonShopifyEcountRoute.js';
+// Webhook
 import shopifyWebhookRoute from './routes/shopifyWebhookRoute.js';
-import AmazonOrder_notion from './routes/AmazonOrder_notion.js';
 import lineWebhookRouter from './routes/lineWebhookRouter.js';
-import ebayAuthRoute from './routes/ebayAuthRoute.js';
 import eBayNotificationsRoute from './routes/eBayNotificationsRoute.js'
-import ebayOrderRoute from './routes/ebayOrderRoute.js'
-// import './routes/callGPTtime.js';
+
+// API
+import ebayAuthRoute from './routes/ebayAuthRoute.js';
+
+// 排程
+import  './jobs/AmazonOrder_notion.js';
+import './jobs/inventorySyncAmazonShopifyEcountRoute.js';
+import  './jobs/ebayOrderRoute.js'
 
 dotenv.config();
 
@@ -41,11 +43,6 @@ app.use('/ebay/notifications',eBayNotificationsRoute);
 app.use(express.json());
 
 // 同步任務路由（用 base path 隔離）
-// app.use('/jobs/amazon-ecount', FBA_SyncRoute);      // FBA → Ecount
-// app.use('/jobs/ecount-shopify', inventorySyncRoute); // Ecount → Shopify
-app.use('jobs/syncInventory',inventorySyncAmazonShopifyEcountRoute) //合併 Amazon Shopify Ecount 庫存邏輯
-app.use('/jobs/amazon-order', AmazonOrder_notion); //Amazon order → notion
-app.use('/jobs/ebay-order', ebayOrderRoute); //eBay order → notion、Line
 app.use('/ebay', ebayAuthRoute);
 
 app.listen(PORT, () => {
