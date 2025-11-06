@@ -6,7 +6,7 @@ import express from 'express';
 import shopifyWebhookRoute from './routes/shopifyWebhookRoute.js';
 import lineWebhookRouter from './routes/lineWebhookRouter.js';
 import eBayNotificationsRoute from './routes/eBayNotificationsRoute.js'
-import productManagerRoute from './routes/productManagerRoute.js'
+// import productManagerRoute from './routes/productManagerRoute.js'
 
 // API
 import ebayAuthRoute from './routes/ebayAuthRoute.js';
@@ -52,7 +52,7 @@ app.get('/health', (req, res) => {
 });
 
 // API 路由
-app.use('/shopify', productManagerRoute);
+// app.use('/shopify', productManagerRoute);
 
 // 404
 app.use((req, res) => {
