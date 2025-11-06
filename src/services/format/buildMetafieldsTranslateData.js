@@ -1,5 +1,5 @@
 import textToTextJson from './textToTextJson.js'
-import getTranslatableResourcesByIds from '../API/getTranslatableResourcesByIds.js';
+import getTranslatableResourcesByIds from '../shopify/getTranslatableResourcesByIds.js';
 
 export default async function buildMetafieldsTranslateData(row, productMetafields) {
 

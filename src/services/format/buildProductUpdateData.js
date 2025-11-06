@@ -1,5 +1,5 @@
-import getCollectionIdByTitle from '../API/getCollectionIdByTitle.js';
-import getProductDataByHandle from '../API/getProductDataByHandle.js';
+import getCollectionIdByTitle from '../shopify/getCollectionIdByTitle.js';
+import getProductDataByHandle from '../shopify/getProductDataByHandle.js';
 import resolveProductDescription from './resolveProductDescription.js';
 
 // 組織產品資料->舊版
