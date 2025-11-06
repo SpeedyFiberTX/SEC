@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 // Ebay
-import getEBayOrder from "../usecases/getEBayOrder.js";
+import getEBayOrder from "../services/ebay/getEBayOrder.js";
 // Notion
 import addNotionPageToDatabase from "../services/notion/add-page-to-database.js";
 import addNotionPageToOrderDatabase from "../services/notion/add-page-to-order-database.js";

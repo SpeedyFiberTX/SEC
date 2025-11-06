@@ -6,6 +6,7 @@ import express from 'express';
 import shopifyWebhookRoute from './routes/shopifyWebhookRoute.js';
 import lineWebhookRouter from './routes/lineWebhookRouter.js';
 import eBayNotificationsRoute from './routes/eBayNotificationsRoute.js'
+import productManagerRoute from './routes/productManagerRoute.js'
 
 // API
 import ebayAuthRoute from './routes/ebayAuthRoute.js';
@@ -44,6 +45,25 @@ app.use(express.json());
 
 // 同步任務路由（用 base path 隔離）
 app.use('/ebay', ebayAuthRoute);
+
+// 健康檢查
+app.get('/health', (req, res) => {
+  res.json({ ok: true, env: process.env.NODE_ENV || 'development' });
+});
+
+// API 路由
+app.use('/shopify', productManagerRoute);
+
+// 404
+app.use((req, res) => {
+  res.status(404).json({ ok: false, message: 'Not Found' });
+});
+
+// 統一錯誤處理
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  res.status(500).json({ ok: false, message: 'Internal Server Error' });
+});
 
 app.listen(PORT, () => {
   console.log(`🚀 Server on http://localhost:${PORT}`);

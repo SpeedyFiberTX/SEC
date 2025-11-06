@@ -1,5 +1,5 @@
-import { getValidAccessTokenByState } from "../services/ebay/getValidAccessToken.js";
-import getOrder from '../services/ebay/getOrder.js'
+import { getValidAccessTokenByState } from "./getValidAccessToken.js";
+import getOrder from './getOrder.js'
 // import dotenv from 'dotenv';
 // dotenv.config();
 // const EBAY_STATE = process.env.EBAY_STATE;

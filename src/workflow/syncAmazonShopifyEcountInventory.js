@@ -11,7 +11,7 @@ import SaveBasicProduct from "../services/ecount/SaveBasicProduct.js";
 import runGetVariantsID from "../services/shopify/getVariantsID.js";
 import runSetInventory from "../services/shopify/setInventory.js";
 // API組合
-import getFBAInventory from "../usecases/getFBAInventory.js";
+import getFBAInventory from "../services/amazon/getFBAInventory.js";
 // Format
 import buildBasicProduct_amazon from "../services/format/buildBasicProduct_amazon.js";
 import sortAmazonInventoryData from "../services/format/sortAmazonInventoryData.js";

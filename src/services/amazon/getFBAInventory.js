@@ -1,6 +1,6 @@
 // API
-import getAccessToken from "../services/amazon/login.js";
-import getInventorySummaries from "../services/amazon/getInventorySumaries_rateLimits.js";
+import getAccessToken from "./login.js";
+import getInventorySummaries from "./getInventorySumaries_rateLimits.js";
 
 export default async function getFBAInventory() {
 
