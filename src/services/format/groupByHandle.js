@@ -1,4 +1,4 @@
-import getFieldValue from '../helper/getFieldValue.js';
+import getFieldValue from './getFieldValue.js';
 
 // 將傳入的整個檔案陣列，依照 Handle 拆成不同陣列
 export default function groupByHandle(rows) {

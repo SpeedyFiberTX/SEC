@@ -1,5 +1,5 @@
-import getFieldValue from '../helper/getFieldValue.js';
-import getProductDataByHandle from '../API/getProductDataByHandle.js';
+import getFieldValue from './getFieldValue.js';
+import getProductDataByHandle from '../shopify/getProductDataByHandle.js';
 
 export default async function buildProductOptionsData(rows) {
 

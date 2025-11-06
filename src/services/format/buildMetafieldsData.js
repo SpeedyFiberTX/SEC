@@ -1,4 +1,4 @@
-import { metafieldTypes, metafieldOptions } from '../helper/metafield-config.js';
+import { metafieldTypes, metafieldOptions } from '../format/metafield-config.js';
 
 export default function buildMetafieldsData(row) {
 

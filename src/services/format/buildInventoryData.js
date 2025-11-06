@@ -1,8 +1,8 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import getFieldValue from '../helper/getFieldValue.js';
-import getProductDataByHandle from '../API/getProductDataByHandle.js';
+import getFieldValue from './getFieldValue.js';
+import getProductDataByHandle from '../shopify/getProductDataByHandle.js';
 import buildOptionTitle from './buildOptionTitle.js';
 
 const LOCATION_TW_ID = process.env.SHOPIFY_LOCATION_TW_ID;

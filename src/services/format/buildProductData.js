@@ -1,6 +1,6 @@
-import resolveProductDescription from '../helper/resolveProductDescription.js';
-import getCollectionIdByTitle from '../API/getCollectionIdByTitle.js';
-import getFieldValue from '../helper/getFieldValue.js';
+import resolveProductDescription from './resolveProductDescription.js';
+import getCollectionIdByTitle from '../shopify/getCollectionIdByTitle.js';
+import getFieldValue from './getFieldValue.js';
 
 export default async function buildProductData(rows = []) {
   const mainRow = rows?.[0];
