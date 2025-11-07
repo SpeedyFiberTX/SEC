@@ -6,6 +6,7 @@ import addNotionPageToDatabase from "../services/notion/add-page-to-database.js"
 import addNotionPageToOrderDatabase from "../services/notion/add-page-to-order-database.js";
 // 工具
 import formatDateYYYYMMDD from "../services/format/formatDateYYYYMMDD.js";
+import { sku_compatible } from '../services/format/sku_config.js'
 // Line
 import pushMessageToMe from '../services/line/pushMessage.js';
 import pushMessageToDeveloper from '../services/line/pushMessageToDeveloper.js';
@@ -72,6 +73,10 @@ export default async function handleEBayOrder() {
                 });
             }
 
+            const productsBySku = new Map(
+                (merged || []).map(p => [String(p.SIZE_DES), p])
+            );
+
             // 要準備送去各個平台的資料
             const orderList = [];
             const orderList_orderDatabase = [];
@@ -121,17 +126,62 @@ export default async function handleEBayOrder() {
                         skuLines.push(`• ${sku} * ${qty}`);
 
                         // 以SKU查詢品項編碼
-                        const productDetail = (merged ?? []).find(p => p?.SIZE_DES === sku);
+                        const productDetail = productsBySku.get(sku);
 
                         const fbaQty = Number(productDetail?.FBA_BAL_QTY ?? 0);
                         const twQty = Number(productDetail?.TW_BAL_QTY ?? 0);
 
-                        // 每個 SKU 的 TW/FBA 庫存檢查列
-                        if (fbaQty !== 0 && twQty !== 0) {
-                            invCheckLines.push(`• ${sku} — TW:${twQty} | FBA:${fbaQty}（需:${qty}）`);
+                        // === 庫存區塊（主品項 + 相容品項）===
+                        const blockLines = [];
+
+                        // 主品項標題
+                        blockLines.push(`主品項：${sku}（需 ${qty}）`);
+                        blockLines.push(`- TW 庫存：${twQty}`);
+                        blockLines.push(`- FBA 庫存：${fbaQty}`);
+
+                        // 主品項狀態
+                        if ((twQty + fbaQty) >= qty) {
+                            blockLines.push(`✅ 主品項庫存充足，可直接出貨`);
+                        } else if (twQty === 0 && fbaQty === 0) {
+                            blockLines.push(`❌ 主品項缺貨 → 建議使用相容品項`);
                         } else {
-                            invCheckLines.push(`• ${sku} — TW:${twQty} | FBA:${fbaQty}（需:${qty}）\n 請換一個 SKU 再嘗試查詢`);
+                            blockLines.push(`⚠️ 主品項庫存不足（合計 ${twQty + fbaQty} / 需 ${qty}）`);
                         }
+
+                        // 相容 SKU 檢查（若此 SKU 存在於 sku_compatible 的 key）
+                        if (Object.prototype.hasOwnProperty.call(sku_compatible, sku)) {
+                            const compList = sku_compatible[sku] || [];
+                            const compLines = [];
+                            const seen = new Set();
+
+                            compList.forEach((cSku, idx) => {
+                                if (seen.has(cSku)) return;
+                                seen.add(cSku);
+
+                                const compProd = productsBySku.get(String(cSku));
+                                const cFbaQty = Number(compProd?.FBA_BAL_QTY ?? 0);
+                                const cTwQty = Number(compProd?.TW_BAL_QTY ?? 0);
+                                const cTotal = cTwQty + cFbaQty;
+
+                                // 編號 + 庫存列
+                                compLines.push(`${idx + 1}) ${cSku}\n   - TW: ${cTwQty} | FBA: ${cFbaQty}`);
+
+                                // 相容品項狀態列
+                                if (cTotal >= qty) {
+                                    compLines.push(`   ✅ 可改用此相容 SKU 出貨（可供 ${cTotal} / 需 ${qty}）`);
+                                } else {
+                                    compLines.push(`   ⚠️ 相容品項庫存不足（可供 ${cTotal} / 需 ${qty}）`);
+                                }
+                            });
+
+                            if (compLines.length > 0) {
+                                blockLines.push(`\n相容品項：\n${compLines.join('\n')}`);
+                            }
+                        }
+
+                        // 把這個 SKU 的區塊加入整張訂單的庫存檢查清單，中間空一行分隔
+                        invCheckLines.push(blockLines.join('\n'));
+                        invCheckLines.push(''); // 空行分隔區塊
 
 
                         // 單價
@@ -448,7 +498,7 @@ export default async function handleEBayOrder() {
                     }
                 }
             } catch (error) {
-                console.error("❌ 新增資料到 notion 平台訂單彙整 出錯了：", err?.message || err);
+                console.error("❌ 新增資料到 notion 平台訂單彙整 出錯了：", error?.message || error);
             }
 
             // console.log("📝 開始新增資料到訂單...");
@@ -460,7 +510,7 @@ export default async function handleEBayOrder() {
                     }
                 }
             } catch (error) {
-                console.error("❌ 新增資料到 notion 訂單 出錯了：", err?.message || err);
+                console.error("❌ 新增資料到 notion 訂單 出錯了：", error?.message || error);
             }
 
             // 送出到 Ecount
@@ -473,7 +523,7 @@ export default async function handleEBayOrder() {
                     console.log('沒有訂單可建立，可能出錯了');
                 }
             } catch (error) {
-                console.error("❌ 建立 Ecount 訂貨單出錯了：", err?.message || err);
+                console.error("❌ 建立 Ecount 訂貨單出錯了：", error?.message || error);
             }
 
 
