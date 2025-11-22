@@ -5,11 +5,11 @@ dotenv.config();
 // console.log('[debug] LINE_CHANNEL_SECRET exists:', !!process.env.LINE_CHANNEL_SECRET);
 
 const config = {
-  channelSecret: process.env.LINE_CHANNEL_SECRET,
+  channelSecret: process.env.LINE_CHANNEL_SECRET_2,
 };
 
 const lineClient = new line.messagingApi.MessagingApiClient({
-  channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN
+  channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN_2
 });
 
 const lineMiddleware = line.middleware(config); //webhook 才用得到
